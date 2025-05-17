@@ -10,15 +10,18 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      mitra.hasMany(models.package_umroh, {
+        foreignKey: 'is_location_departure',
+      });
     }
   }
-  master_location.init({
-    location_name: DataTypes.STRING,
-    is_active: DataTypes.BOOLEAN
-  }, {
-    sequelize,
-    modelName: 'master_location',
-  });
-  return master_location;
+}
+master_location.init({
+  location_name: DataTypes.STRING,
+  is_active: DataTypes.BOOLEAN
+}, {
+  sequelize,
+  modelName: 'master_location',
+});
+return master_location;
 };

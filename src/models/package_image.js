@@ -3,24 +3,25 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class master_category_departure extends Model {
+  class package_image extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      mitra.hasMany(models.package_umroh, {
-        foreignKey: 'id_category_departure',
+      package_image.belongsTo(models.package_umroh, {
+        foreignKey: 'id_package',
       });
     }
   }
-  master_category_departure.init({
-    category_name: DataTypes.STRING,
+  package_image.init({
+    id_package: DataTypes.INTEGER,
+    image_url: DataTypes.STRING,
     is_active: DataTypes.BOOLEAN
   }, {
     sequelize,
-    modelName: 'master_category_departure',
+    modelName: 'package_image',
   });
-  return master_category_departure;
+  return package_image;
 };
