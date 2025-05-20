@@ -1,11 +1,14 @@
-const { User } = require('../../models/user');
+// const { User } = require('../../models/user');
 const { hashPassword } = require('../../utils/hash');
+const models = require('../../models');
+// const User = models.User;
 
 module.exports = {
   async createUser(data) {
     const { name, email, password, phone_number, address, no_ktp, image_url } = data;
     const hashed = await hashPassword(password);
-    return await User.create({
+    console.log(models.User);
+    return await models.User.create({
       name,
       email,
       password: hashed,

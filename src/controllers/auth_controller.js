@@ -31,12 +31,14 @@ module.exports = {
     }
 
     res.status(401).json({ message: 'Invalid credentials' });
-},
+  },
 
 
-// Logout dummy (karena JWT sifatnya stateless)
-async logoutController(req, res) {
-  // Di sisi frontend, cukup hapus token
-  res.json({ message: 'Logout berhasil. Hapus token di client.' })}};
+  // Logout dummy (karena JWT sifatnya stateless)
+  async logoutController(req, res) {
+    // Di sisi frontend, cukup hapus token
+    res.json({ message: 'Logout berhasil. Hapus token di client.' })
+  }
+};
 
 

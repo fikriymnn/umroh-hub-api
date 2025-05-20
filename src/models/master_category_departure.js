@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      mitra.hasMany(models.package_umroh, {
+      master_category_departure.hasMany(models.package_umroh, {
         foreignKey: 'id_category_departure',
       });
     }

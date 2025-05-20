@@ -10,7 +10,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Mitra.hasMany(models.package_umroh, {
+        foreignKey: 'id_mitra',
+      });
     }
   }
   Mitra.init({
@@ -31,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Mitra',
+    tableName: 'mitra',
   });
   return Mitra;
 };
