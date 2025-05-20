@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-}
+
 package_umroh.init({
   id_mitra: DataTypes.INTEGER,
   is_location_departure: DataTypes.INTEGER,
