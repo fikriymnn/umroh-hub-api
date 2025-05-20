@@ -10,6 +10,7 @@ module.exports = {
     }
   },
 
+
   async getAllUsers(req, res) {
     try {
       const users = await userService.getAllUsers();

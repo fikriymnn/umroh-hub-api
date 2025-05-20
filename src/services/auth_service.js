@@ -1,9 +1,9 @@
-const { User } = require('../models');
+const models = require('../models');
 const { comparePassword } = require('../utils/hash');
 const { generateToken } = require('../utils/token');
 
 async function login(email, password) {
-  const user = await User.findOne({ where: { email } });
+  const user = await models.User.findOne({ where: { email } });
   if (!user) throw new Error('Email tidak ditemukan');
 
   const match = await comparePassword(password, user.password);
