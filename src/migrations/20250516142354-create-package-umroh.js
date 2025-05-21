@@ -2,6 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+
     await queryInterface.createTable('package_umroh', {
       id: {
         allowNull: false,
@@ -57,6 +58,7 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
+
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('package_umroh');

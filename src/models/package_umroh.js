@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+
   package_umroh.init({
     id_mitra: DataTypes.INTEGER,
     id_location_departure: DataTypes.INTEGER,

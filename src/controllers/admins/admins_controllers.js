@@ -70,13 +70,19 @@ async function getAdminById(req, res) {
 // UPDATE
 async function updateAdmin(req, res) {
   try {
+    if (req.file) {
+      req.body.image_url = req.file.filename; // tambahkan image_url jika upload file
+    }
+
     const admin = await adminService.updateAdmin(req.params.id, req.body);
     if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
     res.json(admin);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
+
 
 // DEACTIVATE
 async function deactivateAdmin(req, res) {
