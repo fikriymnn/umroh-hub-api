@@ -31,14 +31,20 @@ module.exports = {
   },
 
   async updateUser(req, res) {
-    try {
-      const user = await userService.updateUser(req.params.id, req.body);
-      if (!user) return res.status(404).json({ message: 'User not found' });
-      res.json(user);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+  try {
+    if (req.file) {
+      req.body.image_url = req.file.filename; // tambahkan image_url jika upload file
     }
-  },
+
+    const user = await userService.updateUser(req.params.id, req.body);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+},
+
 
   async deactivateUser(req, res) {
     try {

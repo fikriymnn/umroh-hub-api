@@ -29,15 +29,21 @@ module.exports = {
     }
   },
 
-  async updateMitra(req, res) {
-    try {
-      const mitra = await mitraService.updateMitra(req.params.id, req.body);
-      if (!mitra) return res.status(404).json({ message: 'Mitra not found' });
-      res.json(mitra);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+ async updateMitra(req, res) {
+  try {
+    if (req.file) {
+      req.body.image_url = req.file.filename; // tambahkan image_url jika upload file
     }
-  },
+
+    const mitra = await mitraService.updateMitra(req.params.id, req.body);
+    if (!mitra) return res.status(404).json({ message: 'Mitra not found' });
+
+    res.json(mitra);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+},
+
 
   async deactivateMitra(req, res) {
     try {

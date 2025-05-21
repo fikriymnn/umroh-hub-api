@@ -33,11 +33,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Mitra',
-<<<<<<< HEAD
-    tableName:"mitrA"
-=======
     tableName: 'mitra',
->>>>>>> 2af0d9e42fcad134bf4d074d53413d660861baa7
   });
   return Mitra;
 };

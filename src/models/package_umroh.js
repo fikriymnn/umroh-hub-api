@@ -33,27 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-<<<<<<< HEAD
 
-package_umroh.init({
-  id_mitra: DataTypes.INTEGER,
-  is_location_departure: DataTypes.INTEGER,
-  id_category_departure: DataTypes.INTEGER,
-  package_name: DataTypes.STRING,
-  description: DataTypes.STRING,
-  date_departure: DataTypes.DATE,
-  airline: DataTypes.STRING,
-  duration: DataTypes.INTEGER,
-  quota: DataTypes.INTEGER,
-  quota_update: DataTypes.INTEGER,
-  price: DataTypes.INTEGER,
-  is_active: DataTypes.BOOLEAN
-}, {
-  sequelize,
-  modelName: 'package_umroh',
-});
-return package_umroh;
-=======
   package_umroh.init({
     id_mitra: DataTypes.INTEGER,
     id_location_departure: DataTypes.INTEGER,
@@ -73,5 +53,4 @@ return package_umroh;
     modelName: 'package_umroh',
   });
   return package_umroh;
->>>>>>> 2af0d9e42fcad134bf4d074d53413d660861baa7
 };
