@@ -10,6 +10,7 @@ router.use("/", require('../routes/package_umroh/package_umroh_rotes'))
 router.use('/users', require('./users/user_routes'));
 router.use('/mitras', require('./mitra/mitra_routes'));
 router.use('/admins', require('./admins/admin_routes'));
+router.use('/hotels', require('../routes/master_hotel/master_hotel_router'));
 router.use('/auth', require('./auth/auth_route'));
 
 module.exports = router;
