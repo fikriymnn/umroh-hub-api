@@ -14,9 +14,9 @@ async function registerAdmin(req, res) {
       password: hashed,
       is_active: true
     });
-    res.status(201).json({ message: 'Admin registered', admin });
+    res.status(201).json({ message: 'Admin registered', data: admin });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, success: false, status_code: 500 });
   }
 }
 
@@ -50,7 +50,7 @@ function logoutAdmin(req, res) {
 async function getAllAdmins(req, res) {
   try {
     const admins = await adminService.getAllAdmins();
-    res.json(admins);
+    res.status(200).json({ status_code: 200, success: true, data: admins });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

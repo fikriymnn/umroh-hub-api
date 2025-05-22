@@ -1,30 +1,30 @@
-const MasterTypeDeparture = require('../../models/master_type_departure');
+const models = require('../../models');
 
 const createMasterTypeDeparture = async (data) => {
     const { type_name } = data;
-    return await MasterTypeDeparture.create({ type_name });
+    return await models.master_type_departure.create({ type_name });
 };
 
 const getMasterTypeDeparture = async () => {
-    return await MasterTypeDeparture.findAll();
+    return await models.master_type_departure.findAll();
 };
 
 const getMasterTypeDepartureById = async (id) => {
-    return await MasterTypeDeparture.findOne({ where: { id } });
+    return await models.master_type_departure.findOne({ where: { id } });
 };
 
 const updateMasterTypeDeparture = async (id, data) => {
     const { type_name } = data;
-    await MasterTypeDeparture.update({ type_name }, { where: { id } });
-    return await MasterTypeDeparture.findOne({ where: { id } });
+    await models.master_type_departure.update({ type_name }, { where: { id } });
+    return await models.master_type_departure.findOne({ where: { id } });
 };
 
 const nonActiveMasterTypeDeparture = async (id) => {
-    await MasterTypeDeparture.update({ is_active: false }, { where: { id } });
-    return await MasterTypeDeparture.findOne({ where: { id } });
+    await models.master_type_departure.update({ is_active: false }, { where: { id } });
+    return await models.master_type_departure.findOne({ where: { id } });
 };
 const deleteMasterTypeDeparture = async (id) => {
-    return await MasterTypeDeparture.destroy({ where: { id } });
+    return await models.master_type_departure.destroy({ where: { id } });
 };
 
 module.exports = {

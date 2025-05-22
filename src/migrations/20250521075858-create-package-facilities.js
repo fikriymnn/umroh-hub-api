@@ -2,21 +2,21 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('master_location_departure', {
+    await queryInterface.createTable('package_facilities', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      location_name: {
-        type: Sequelize.STRING,
-        allowNull: false,
+      id_package: {
+        type: Sequelize.INTEGER
+      },
+      description: {
+        type: Sequelize.STRING
       },
       is_active: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
-        allowNull: false,
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -29,6 +29,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('master_location_departure');
+    await queryInterface.dropTable('package_facilities');
   }
 };

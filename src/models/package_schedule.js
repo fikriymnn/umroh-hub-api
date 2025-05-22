@@ -21,10 +21,12 @@ module.exports = (sequelize, DataTypes) => {
   package_schedule.init({
     id_package: DataTypes.INTEGER,
     title: DataTypes.STRING,
-    is_active: DataTypes.BOOLEAN
+    is_active: DataTypes.BOOLEAN,
+    image_url: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'package_schedule',
+    tableName: 'package_schedule',
     freezeTableName: true,
   });
   return package_schedule;

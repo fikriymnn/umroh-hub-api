@@ -16,8 +16,11 @@ module.exports = (sequelize, DataTypes) => {
       package_umroh.belongsTo(models.master_category_departure, {
         foreignKey: 'id_category_departure',
       });
-      package_umroh.belongsTo(models.master_location, {
+      package_umroh.belongsTo(models.master_location_departure, {
         foreignKey: 'id_location_departure',
+      });
+      package_umroh.hasMany(models.package_facilities, {
+        foreignKey: 'id_package',
       });
       package_umroh.belongsTo(models.master_type_departure, {
         foreignKey: 'id_type_departure',
@@ -51,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'package_umroh',
+    tableName: 'package_umroh',
   });
   return package_umroh;
 };

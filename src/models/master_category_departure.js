@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'master_category_departure',
+    tableName: 'master_category_departure'
   });
   return master_category_departure;
 };

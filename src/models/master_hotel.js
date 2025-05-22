@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'master_hotel',
+    tableName: 'master_hotel'
   });
   return master_hotel;
 };
