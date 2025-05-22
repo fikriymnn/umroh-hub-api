@@ -11,6 +11,7 @@
 //   }
 // });
 
+<<<<<<< HEAD
 // const upload = multer({ 
 //   storage,
 //   fileFilter: (req, file, cb) => {
@@ -21,5 +22,17 @@
 //     cb(null, true);
 //   }
 // });
+=======
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
+      return cb(new Error('Only images are allowed'));
+    }
+    cb(null, true);
+  }
+});
+>>>>>>> 01196bd9ef9a0fce9f934c687fa906fa061ce5e7
 
 // module.exports = upload;

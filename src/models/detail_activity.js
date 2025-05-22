@@ -17,7 +17,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   detail_activity.init({
     id_schedule: DataTypes.INTEGER,
-    description: DataTypes.STRING,
+    note: DataTypes.STRING,
+    activity: DataTypes.STRING,
+    time: DataTypes.TIME,
     is_active: DataTypes.BOOLEAN
   }, {
     sequelize,

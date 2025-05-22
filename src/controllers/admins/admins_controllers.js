@@ -14,9 +14,15 @@ async function registerAdmin(req, res) {
       password: hashed,
       is_active: true
     });
+<<<<<<< HEAD
     res.status(200).json({ status_code: 200, success: true, message: 'Admin registered', data: admin });
   } catch (err) {
     res.status(500).json({ status_code: 500, success: false, error: err.message });
+=======
+    res.status(201).json({ message: 'Admin registered', data: admin });
+  } catch (err) {
+    res.status(500).json({ error: err.message, success: false, status_code: 500 });
+>>>>>>> 01196bd9ef9a0fce9f934c687fa906fa061ce5e7
   }
 }
 
@@ -50,7 +56,11 @@ function logoutAdmin(req, res) {
 async function getAllAdmins(req, res) {
   try {
     const admins = await adminService.getAllAdmins();
+<<<<<<< HEAD
     res.status(200).json({ status_code: 200, success: true, message: 'Data retrieved', data: admins });
+=======
+    res.status(200).json({ status_code: 200, success: true, data: admins });
+>>>>>>> 01196bd9ef9a0fce9f934c687fa906fa061ce5e7
   } catch (err) {
     res.status(500).json({ status_code: 500, success: false, error: err.message });
   }

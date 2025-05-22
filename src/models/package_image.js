@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'package_image',
+    tableName: 'package_image',
   });
   return package_image;
 };

@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('detail_activities', {
+    await queryInterface.createTable('detail_activitie', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,7 +12,13 @@ module.exports = {
       id_schedule: {
         type: Sequelize.INTEGER
       },
-      description: {
+      note: {
+        type: Sequelize.STRING
+      },
+      time: {
+        type: Sequelize.TIME
+      },
+      activity: {
         type: Sequelize.STRING
       },
       is_active: {
@@ -29,6 +35,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('detail_activities');
+    await queryInterface.dropTable('detail_activitie');
   }
 };

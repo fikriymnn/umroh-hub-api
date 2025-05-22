@@ -1,30 +1,32 @@
-const MasterCategoryDeparture = require('../../models/master_category_departure');
+const models = require('../../models');
 
 const createMasterCategoryDeparture = async (data) => {
     const { category_name } = data;
-    return await MasterCategoryDeparture.create({ category_name });
+    return await models.master_category_departure.create({ category_name });
 };
 
 const getMasterCategoryDeparture = async () => {
-    return await MasterCategoryDeparture.findAll();
+    return await models.master_category_departure.findAll();
 };
 
 const getMasterCategoryDepartureById = async (id) => {
-    return await MasterCategoryDeparture.findOne({ where: { id } });
+    return await models.master_category_departure.findOne({ where: { id } });
 };
 
 const updateMasterCategoryDeparture = async (id, data) => {
     const { category_name } = data;
-    await MasterCategoryDeparture.update({ category_name }, { where: { id } });
-    return await MasterCategoryDeparture.findOne({ where: { id } });
+    await models.master_category_departure.update({ category_name }, { where: { id } });
+    const newCategory = await models.master_category_departure.findOne({ where: { id } });
+    return await newCategory
 };
 
 const nonActiveMasterCategoryDeparture = async (id) => {
-    await MasterCategoryDeparture.update({ is_active: false }, { where: { id } });
-    return await MasterCategoryDeparture.findOne({ where: { id } });
+    await models.master_category_departure.update({ is_active: false }, { where: { id } });
+    const categoryDeactive = await models.master_category_departure.findOne({ where: { id } });
+    return await categoryDeactive
 };
 const deleteMasterCategoryDeparture = async (id) => {
-    return await MasterCategoryDeparture.destroy({ where: { id } });
+    return await models.master_category_departure.destroy({ where: { id } });
 };
 
 module.exports = {

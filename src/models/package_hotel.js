@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     freezeTableName: true,
     modelName: 'package_hotel',
+    tableName: 'package_hotel',
   });
   return package_hotel;
 };
