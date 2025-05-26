@@ -15,6 +15,22 @@ module.exports = {
       is_active: {
         type: Sequelize.BOOLEAN
       },
+      hotel_name: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      room_type: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      hotel_type: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      address: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

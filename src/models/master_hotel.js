@@ -13,11 +13,18 @@ module.exports = (sequelize, DataTypes) => {
       master_hotel.hasMany(models.package_hotel, {
         foreignKey: 'id_hotel',
       });
+      master_hotel.hasMany(models.hotel_facilities, {
+        foreignKey: 'id_hotel',
+      });
     }
   }
   master_hotel.init({
     id_mitra: DataTypes.INTEGER,
-    is_active: DataTypes.BOOLEAN
+    is_active: DataTypes.BOOLEAN,
+    hotel_name: DataTypes.STRING,
+    hotel_type: DataTypes.STRING,
+    address: DataTypes.STRING,
+    room_type: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'master_hotel',

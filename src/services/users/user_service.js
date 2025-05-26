@@ -44,5 +44,9 @@ module.exports = {
     if (!user) return null;
     await user.destroy();
     return true;
+  },
+
+  async getMe(id) {
+    return await models.User.findByPk(id);
   }
 };

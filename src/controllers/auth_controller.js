@@ -20,11 +20,12 @@ module.exports = {
           return res.status(403).json({ message: 'Account not active' });
         }
 
-        const token = generateToken({
-          id: user.id,
-          email: user.email,
-          role: userType.role
-        });
+        const token = generateToken(
+          { id: user.id, role: userType.role, username: user.username },
+          process.env.SECRET_KEY
+        );
+
+        res.cookie('token', token, { httpOnly: true, sameSite: "None", secure: true, path: "/" });
 
         return res.json({ message: `Login as ${userType.role} successful`, token });
       }
