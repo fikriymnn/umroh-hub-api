@@ -69,6 +69,7 @@ module.exports = {
   // UPDATE
   async updateUser(req, res) {
     try {
+<<<<<<< HEAD
       // if (req.file) {
       //   req.body.image_url = req.file.filename;
       // }
@@ -98,6 +99,22 @@ module.exports = {
   },
 
   // DEACTIVATE
+=======
+      if (req.file) {
+        req.body.image_url = req.file.filename; // tambahkan image_url jika upload file
+      }
+
+      const user = await userService.updateUser(req.params.id, req.body);
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      res.json(user);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+
+>>>>>>> 9dcbdda345a95542b2ce894e156b0aa0c9cc10de
   async deactivateUser(req, res) {
     try {
       const user = await userService.deactivateUser(req.params.id);
@@ -147,6 +164,17 @@ module.exports = {
         success: false,
         error: err.message
       });
+    }
+  },
+
+  async getMe(req, res) {
+    const id = req.user.id
+    try {
+      const user = await userService.getMe(id);
+      if (!user) return res.status(404).json({ status_code: 404, success: false, message: 'User not found' });
+      res.status(200).json({ status_code: 200, success: true, data: user });;
+    } catch (err) {
+      res.status(500).json({ status_code: 500, success: false, error: err.message });
     }
   }
 };

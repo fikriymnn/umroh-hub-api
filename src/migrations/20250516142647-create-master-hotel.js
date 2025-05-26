@@ -17,6 +17,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       hotel_name: {
+<<<<<<< HEAD
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -37,6 +38,23 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true
       // },
+=======
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      room_type: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      hotel_type: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      address: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+>>>>>>> 9dcbdda345a95542b2ce894e156b0aa0c9cc10de
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

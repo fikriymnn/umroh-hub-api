@@ -39,6 +39,7 @@
 //     return user;
 //   },
 
+<<<<<<< HEAD
 //   async deleteUser(id) {
 //     const user = await models.User.findByPk(id);
 //     if (!user) return null;
@@ -46,3 +47,16 @@
 //     return true;
 //   }
 // };
+=======
+  async deleteUser(id) {
+    const user = await models.User.findByPk(id);
+    if (!user) return null;
+    await user.destroy();
+    return true;
+  },
+
+  async getMe(id) {
+    return await models.User.findByPk(id);
+  }
+};
+>>>>>>> 9dcbdda345a95542b2ce894e156b0aa0c9cc10de
