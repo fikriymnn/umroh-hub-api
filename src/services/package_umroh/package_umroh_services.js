@@ -2,7 +2,7 @@ const { where } = require("sequelize");
 const models = require('../../models');
 const sequelize = require("../../config/db");
 
-const createPakcageUmroh = async (data, userId) => {
+const createPakcageUmroh = async (data) => {
     const {
         id_mitra,
         id_location_departure,
@@ -46,7 +46,7 @@ const createPakcageUmroh = async (data, userId) => {
         }
 
         const packageUmroh = await models.package_umroh.create({
-            id_mitra: userId,
+            id_mitra: id_mitra,
             id_category_departure,
             id_location_departure,
             id_type_departure,
@@ -249,7 +249,7 @@ const getPakcageUmroh = async () => {
 
 const getPakcageUmrohById = async (id) => {
     return await models.package_umroh.findOne({
-        where: { id },
+        where: { id: id },
         include: [
             {
                 model: models.master_type_departure
