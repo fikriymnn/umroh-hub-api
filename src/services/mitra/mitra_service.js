@@ -1,59 +1,104 @@
-// const { Mitra } = require('../../models');
-// const { hashPassword } = require('../../utils/hash');
+const models = require('../../models');
+const sequelize = require('../../config/db');
+const { hashPassword } = require('../../utils/hash');
 
-// module.exports = {
-//   async createMitra(data) {
-//     const {
-//       name, email, password, phone_number, address,
-//       compamy_name, website, nib, npwp, siup,
-//       siuppiu, akta, image_url
-//     } = data;
+const createMitra = async (data) => {
+  const t = await sequelize.transaction();
+  try {
+    const {
+      name, email, password, phone_number, address,
+      compamy_name, website, nib, npwp, siup,
+      siuppiu, akta, image_url
+    } = data;
 
-//     const hashed = await hashPassword(password);
-//     return await Mitra.create({
-//       name,
-//       email,
-//       password: hashed,
-//       phone_number,
-//       address,
-//       compamy_name,
-//       website,
-//       nib,
-//       npwp,
-//       siup,
-//       siuppiu,
-//       akta,
-//       image_url,
-//       is_active: true
-//     });
-//   },
+    const hashed = await hashPassword(password);
 
-//   async getAllMitras() {
-//     return await Mitra.findAll();
-//   },
+    const newMitra = await models.Mitra.create({
+      name,
+      email,
+      password: hashed,
+      phone_number,
+      address,
+      compamy_name,
+      website,
+      nib,
+      npwp,
+      siup,
+      siuppiu,
+      akta,
+      image_url,
+      is_active: true
+    }, { transaction: t });
 
-//   async getMitraById(id) {
-//     return await Mitra.findByPk(id);
-//   },
+    await t.commit();
+    return { success: true, message: 'Mitra created successfully', data: newMitra };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
 
-//   async updateMitra(id, data) {
-//     const mitra = await Mitra.findByPk(id);
-//     if (!mitra) return null;
-//     await mitra.update(data);
-//     return mitra;
-//   },
+const getAllMitras = async () => {
+  const mitras = await models.Mitra.findAll();
+  return { success: true, message: 'All mitras fetched', data: mitras };
+};
 
-//   async deactivateMitra(id) {
-//     const mitra = await Mitra.findByPk(id);
-//     if (!mitra) return null;
-//     await mitra.update({ is_active: false });
-//     return mitra;
-//   },
+const getMitraById = async (id) => {
+  const mitra = await models.Mitra.findByPk(id);
+  if (!mitra) return { success: false, message: 'Mitra not found' };
+  return { success: true, message: 'Mitra fetched', data: mitra };
+};
 
-//   async deleteMitra(id) {
-//     const mitra = await Mitra.findByPk(id);
-//     if (!mitra) return null;
-//     await mitra.destroy();
-//     return true;
-//   }
-// };
+const updateMitra = async (id, data) => {
+  const t = await sequelize.transaction();
+  try {
+    const mitra = await models.Mitra.findByPk(id);
+    if (!mitra) return { success: false, message: 'Mitra not found' };
+
+    await mitra.update(data, { transaction: t });
+    await t.commit();
+    return { success: true, message: 'Mitra updated successfully', data: mitra };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+const deactivateMitra = async (id) => {
+  const t = await sequelize.transaction();
+  try {
+    const mitra = await models.Mitra.findByPk(id);
+    if (!mitra) return { success: false, message: 'Mitra not found' };
+
+    await mitra.update({ is_active: false }, { transaction: t });
+    await t.commit();
+    return { success: true, message: 'Mitra deactivated successfully', data: mitra };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+const deleteMitra = async (id) => {
+  const t = await sequelize.transaction();
+  try {
+    const mitra = await models.Mitra.findByPk(id);
+    if (!mitra) return { success: false, message: 'Mitra not found' };
+
+    await mitra.destroy({ transaction: t });
+    await t.commit();
+    return { success: true, message: 'Mitra deleted successfully' };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+module.exports = {
+  createMitra,
+  getAllMitras,
+  getMitraById,
+  updateMitra,
+  deactivateMitra,
+  deleteMitra
+};

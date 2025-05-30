@@ -1,23 +1,31 @@
 const { master_hotel } = require('../../models');
+const sequelize = require('../../config/db');
 
 module.exports = {
   async createHotel(data) {
-    const { id_mitra, hotel_name, hotel_type, room_type, address } = data;
+    const t = await sequelize.transaction();
+    try {
+      const { id_mitra, hotel_name, hotel_type, room_type, address } = data;
 
-    if (!id_mitra || !hotel_name || !hotel_type || !room_type || !address) {
-      throw new Error('All fields are required');
+      if (!id_mitra || !hotel_name || !hotel_type || !room_type || !address) {
+        return { success: false, message: 'All fields are required' };
+      }
+
+      const newHotel = await master_hotel.create({
+        id_mitra,
+        hotel_name,
+        hotel_type,
+        room_type,
+        address,
+        is_active: true
+      }, { transaction: t });
+
+      await t.commit();
+      return { success: true, message: 'Hotel created successfully', data: newHotel };
+    } catch (error) {
+      await t.rollback();
+      throw error;
     }
-
-    const newHotel = await master_hotel.create({
-      id_mitra,
-      hotel_name,
-      hotel_type,
-      room_type,
-      address,
-      is_active: true
-    });
-
-    return { success: true, message: 'Hotel created successfully', data: newHotel };
   },
 
   async getAllHotels() {
@@ -27,33 +35,52 @@ module.exports = {
 
   async getHotelById(id) {
     const hotel = await master_hotel.findByPk(id);
-    if (!hotel) return null;
+    if (!hotel) return { success: false, message: 'Hotel not found' };
     return { success: true, message: 'Hotel found', data: hotel };
   },
 
   async updateHotel(id, data) {
-    const hotel = await master_hotel.findByPk(id);
-    if (!hotel) return null;
+    const t = await sequelize.transaction();
+    try {
+      const hotel = await master_hotel.findByPk(id);
+      if (!hotel) return { success: false, message: 'Hotel not found' };
 
-    await hotel.update(data);
-    return { success: true, message: 'Hotel updated successfully', data: hotel };
+      await hotel.update(data, { transaction: t });
+      await t.commit();
+      return { success: true, message: 'Hotel updated successfully', data: hotel };
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
   },
 
   async deactivateHotel(id) {
-    const hotel = await master_hotel.findByPk(id);
-    if (!hotel) return null;
+    const t = await sequelize.transaction();
+    try {
+      const hotel = await master_hotel.findByPk(id);
+      if (!hotel) return { success: false, message: 'Hotel not found' };
 
-    hotel.is_active = false;
-    await hotel.save();
-
-    return { success: true, message: 'Hotel deactivated', data: hotel };
+      await hotel.update({ is_active: false }, { transaction: t });
+      await t.commit();
+      return { success: true, message: 'Hotel deactivated', data: hotel };
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
   },
 
   async deleteHotel(id) {
-    const hotel = await master_hotel.findByPk(id);
-    if (!hotel) return null;
+    const t = await sequelize.transaction();
+    try {
+      const hotel = await master_hotel.findByPk(id);
+      if (!hotel) return { success: false, message: 'Hotel not found' };
 
-    await hotel.destroy();
-    return { success: true, message: 'Hotel deleted' };
+      await hotel.destroy({ transaction: t });
+      await t.commit();
+      return { success: true, message: 'Hotel deleted' };
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
   }
 };

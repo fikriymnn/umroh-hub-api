@@ -19,21 +19,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   master_hotel.init({
-<<<<<<< HEAD
-   id_mitra: DataTypes.INTEGER,
-    is_active: DataTypes.BOOLEAN,
-     hotel_name: DataTypes.STRING,
-      hotel_type: DataTypes.STRING,
-      room_type:  DataTypes.STRING,
-      address:  DataTypes.STRING,
-=======
+
     id_mitra: DataTypes.INTEGER,
     is_active: DataTypes.BOOLEAN,
     hotel_name: DataTypes.STRING,
     hotel_type: DataTypes.STRING,
     address: DataTypes.STRING,
     room_type: DataTypes.STRING
->>>>>>> 9dcbdda345a95542b2ce894e156b0aa0c9cc10de
+
   }, {
     sequelize,
     modelName: 'master_hotel',

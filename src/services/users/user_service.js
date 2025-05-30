@@ -1,62 +1,100 @@
-// const { hashPassword } = require('../../utils/hash');
-// const models = require('../../models'); // pastikan models/index.js return object dengan key `User`
+const { hashPassword } = require('../../utils/hash');
+const models = require('../../models');
+const sequelize = require('../../config/db');
 
-// module.exports = {
-//   async createUser(data) {
-//     const { name, email, password, phone_number, address, no_ktp, image_url } = data;
-//     const hashed = await hashPassword(password);
-//     return await models.User.create({
-//       name,
-//       email,
-//       password: hashed,
-//       phone_number,
-//       address,
-//       no_ktp,
-//       image_url,
-//       is_active: true
-//     });
-//   },
+module.exports = {
+  async createUser(data) {
+    const t = await sequelize.transaction();
+    try {
+      const { name, email, password, phone_number, address, no_ktp, image_url } = data;
 
-//   async getAllUsers() {
-//     return await models.User.findAll();
-//   },
+      if (!name || !email || !password) {
+        return { success: false, message: 'Name, email, and password are required' };
+      }
 
-//   async getUserById(id) {
-//     return await models.User.findByPk(id);
-//   },
+      const hashed = await hashPassword(password);
 
-//   async updateUser(id, data) {
-//     const user = await models.User.findByPk(id);
-//     if (!user) return null;
-//     await user.update(data);
-//     return user;
-//   },
+      const user = await models.User.create({
+        name,
+        email,
+        password: hashed,
+        phone_number,
+        address,
+        no_ktp,
+        image_url,
+        is_active: true
+      }, { transaction: t });
 
-//   async deactivateUser(id) {
-//     const user = await models.User.findByPk(id);
-//     if (!user) return null;
-//     await user.update({ is_active: false });
-//     return user;
-//   },
+      await t.commit();
+      return { success: true, message: 'User created successfully', data: user };
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
+  },
 
-<<<<<<< HEAD
-//   async deleteUser(id) {
-//     const user = await models.User.findByPk(id);
-//     if (!user) return null;
-//     await user.destroy();
-//     return true;
-//   }
-// };
-=======
-  async deleteUser(id) {
+  async getAllUsers() {
+    const users = await models.User.findAll();
+    return { success: true, message: 'All users retrieved', data: users };
+  },
+
+  async getUserById(id) {
     const user = await models.User.findByPk(id);
-    if (!user) return null;
-    await user.destroy();
-    return true;
+    if (!user) return { success: false, message: 'User not found' };
+    return { success: true, message: 'User retrieved', data: user };
+  },
+
+  async updateUser(id, data) {
+    const t = await sequelize.transaction();
+    try {
+      const user = await models.User.findByPk(id);
+      if (!user) return { success: false, message: 'User not found' };
+
+      await user.update(data, { transaction: t });
+      await t.commit();
+
+      return { success: true, message: 'User updated successfully', data: user };
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
+  },
+
+  async deactivateUser(id) {
+    const t = await sequelize.transaction();
+    try {
+      const user = await models.User.findByPk(id);
+      if (!user) return { success: false, message: 'User not found' };
+
+      await user.update({ is_active: false }, { transaction: t });
+      await t.commit();
+
+      return { success: true, message: 'User deactivated', data: user };
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
+  },
+
+  async deleteUser(id) {
+    const t = await sequelize.transaction();
+    try {
+      const user = await models.User.findByPk(id);
+      if (!user) return { success: false, message: 'User not found' };
+
+      await user.destroy({ transaction: t });
+      await t.commit();
+
+      return { success: true, message: 'User deleted' };
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
   },
 
   async getMe(id) {
-    return await models.User.findByPk(id);
+    const user = await models.User.findByPk(id);
+    if (!user) return { success: false, message: 'User not found' };
+    return { success: true, message: 'User profile retrieved', data: user };
   }
 };
->>>>>>> 9dcbdda345a95542b2ce894e156b0aa0c9cc10de

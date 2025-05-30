@@ -37,6 +37,7 @@ async function loginAdmin(req, res) {
     }
 
     const token = generateToken({ id: admin.id, role: 'admin' });
+    res.cookie('token', token, { httpOnly: true, sameSite: "None", secure: true, path: "/" });
     res.status(200).json({ status_code: 200, success: true, message: 'Login successful', data: { token } });
   } catch (err) {
     res.status(500).json({ status_code: 500, success: false, error: err.message });
@@ -44,9 +45,20 @@ async function loginAdmin(req, res) {
 }
 
 // LOGOUT
-function logoutAdmin(req, res) {
-  res.status(200).json({ status_code: 200, success: true, message: 'Logout success (hapus token di client)' });
+
+const logoutAdmin = async (req, res) => {
+  const id = req.user.id
+  try {
+      res.clearCookie('token', {httpOnly: true, sameSite: "None",secure: true, path: "/"});
+      console.log('logout berhasil');
+
+     
+    res.status(200).json({ message: 'logout berhasil' });
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
 }
+
 
 // GET ALL
 async function getAllAdmins(req, res) {

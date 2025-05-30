@@ -69,37 +69,7 @@ module.exports = {
   // UPDATE
   async updateUser(req, res) {
     try {
-<<<<<<< HEAD
-      // if (req.file) {
-      //   req.body.image_url = req.file.filename;
-      // }
 
-      const user = await userService.updateUser(req.params.id, req.body);
-      if (!user) {
-        return res.status(404).json({
-          status_code: 404,
-          success: false,
-          message: 'User not found'
-        });
-      }
-
-      res.status(200).json({
-        status_code: 200,
-        success: true,
-        message: 'User updated',
-        data: user
-      });
-    } catch (err) {
-      res.status(500).json({
-        status_code: 500,
-        success: false,
-        error: err.message
-      });
-    }
-  },
-
-  // DEACTIVATE
-=======
       if (req.file) {
         req.body.image_url = req.file.filename; // tambahkan image_url jika upload file
       }
@@ -114,7 +84,7 @@ module.exports = {
   },
 
 
->>>>>>> 9dcbdda345a95542b2ce894e156b0aa0c9cc10de
+
   async deactivateUser(req, res) {
     try {
       const user = await userService.deactivateUser(req.params.id);
