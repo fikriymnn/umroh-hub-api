@@ -27,7 +27,15 @@ fs
     );
   })
   .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    const modelPath = path.join(__dirname, file);
+    const modelDef = require(modelPath);
+
+    if (typeof modelDef !== 'function') {
+      console.warn(`⚠️ Lewatkan file non-model: ${file}`);
+      return;
+    }
+
+    const model = modelDef(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
 

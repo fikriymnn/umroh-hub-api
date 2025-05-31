@@ -13,7 +13,7 @@ module.exports = {
       id_mitra: {
         type: Sequelize.INTEGER
       },
-      is_location_departure: {
+      id_location_departure: {
         type: Sequelize.INTEGER
       },
       id_category_departure: {

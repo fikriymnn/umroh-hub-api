@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../../middlewares/upload');
+// const upload = require('../../middlewares/upload');
 const adminController = require('../../controllers/admins/admins_controllers');
-const { authenticate, authorizeRole } = require('../../middlewares/auth');
+const authenticate = require('../../middlewares/auth');
 
 
 router.post('/register', adminController.registerAdmin);
 
 // Login dan Logout
 router.post('/login', adminController.loginAdmin);
-router.post('/logout', adminController.logoutAdmin);
+router.post('/logout', authenticate(['admin']), adminController.logoutAdmin);
 
-router.get('/', authenticate, authorizeRole('admin'),adminController.getAllAdmins);
-router.get('/:id', authenticate, authorizeRole('admin'),adminController.getAdminById);
-router.put('/:id',upload.single('image_url'), authenticate, authorizeRole('admin'),adminController.updateAdmin);
-router.patch('/:id/deactivate',authenticate, authorizeRole('admin'), adminController.deactivateAdmin);
-router.delete('/:id',authenticate, authorizeRole('admin'), adminController.deleteAdmin);
+router.get('/',adminController.getAllAdmins);
+router.get('/:id',adminController.getAdminById);
+router.put('/:id',adminController.updateAdmin);
+router.patch('/:id/deactivate', adminController.deactivateAdmin);
+router.delete('/:id', adminController.deleteAdmin);
 
 module.exports = router;

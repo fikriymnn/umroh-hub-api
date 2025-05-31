@@ -14,9 +14,11 @@ async function registerAdmin(req, res) {
       password: hashed,
       is_active: true
     });
+
     res.status(201).json({ message: 'Admin registered', data: admin });
   } catch (err) {
     res.status(500).json({ error: err.message, success: false, status_code: 500 });
+
   }
 }
 
@@ -27,32 +29,46 @@ async function loginAdmin(req, res) {
     const admin = await Admin.findOne({ where: { email } });
 
     if (!admin || !(await comparePassword(password, admin.password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ status_code: 401, success: false, message: 'Invalid credentials' });
     }
 
     if (!admin.is_active) {
-      return res.status(403).json({ message: 'Account not active' });
+      return res.status(403).json({ status_code: 403, success: false, message: 'Account not active' });
     }
 
     const token = generateToken({ id: admin.id, role: 'admin' });
-    res.json({ message: 'Login successful', token });
+    res.cookie('token', token, { httpOnly: true, sameSite: "None", secure: true, path: "/" });
+    res.status(200).json({ status_code: 200, success: true, message: 'Login successful', data: { token } });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status_code: 500, success: false, error: err.message });
   }
 }
 
 // LOGOUT
-function logoutAdmin(req, res) {
-  res.json({ message: 'Logout success (hapus token di client)' });
+
+const logoutAdmin = async (req, res) => {
+  const id = req.user.id
+  try {
+      res.clearCookie('token', {httpOnly: true, sameSite: "None",secure: true, path: "/"});
+      console.log('logout berhasil');
+
+     
+    res.status(200).json({ message: 'logout berhasil' });
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
 }
+
 
 // GET ALL
 async function getAllAdmins(req, res) {
   try {
     const admins = await adminService.getAllAdmins();
+
     res.status(200).json({ status_code: 200, success: true, data: admins });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status_code: 500, success: false, error: err.message });
   }
 }
 
@@ -60,38 +76,38 @@ async function getAllAdmins(req, res) {
 async function getAdminById(req, res) {
   try {
     const admin = await adminService.getAdminById(req.params.id);
-    if (!admin) return res.status(404).json({ message: 'Admin not found' });
-    res.json(admin);
+    if (!admin) {
+      return res.status(404).json({ status_code: 404, success: false, message: 'Admin not found' });
+    }
+    res.status(200).json({ status_code: 200, success: true, message: 'Data retrieved', data: admin });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status_code: 500, success: false, error: err.message });
   }
 }
 
 // UPDATE
 async function updateAdmin(req, res) {
   try {
-    if (req.file) {
-      req.body.image_url = req.file.filename; // tambahkan image_url jika upload file
-    }
-
     const admin = await adminService.updateAdmin(req.params.id, req.body);
-    if (!admin) return res.status(404).json({ message: 'Admin not found' });
-
-    res.json(admin);
+    if (!admin) {
+      return res.status(404).json({ status_code: 404, success: false, message: 'Admin not found' });
+    }
+    res.status(200).json({ status_code: 200, success: true, message: 'Admin updated', data: admin });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status_code: 500, success: false, error: err.message });
   }
 }
-
 
 // DEACTIVATE
 async function deactivateAdmin(req, res) {
   try {
     const admin = await adminService.deactivateAdmin(req.params.id);
-    if (!admin) return res.status(404).json({ message: 'Admin not found' });
-    res.json({ message: 'Admin deactivated', admin });
+    if (!admin) {
+      return res.status(404).json({ status_code: 404, success: false, message: 'Admin not found' });
+    }
+    res.status(200).json({ status_code: 200, success: true, message: 'Admin deactivated', data: admin });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status_code: 500, success: false, error: err.message });
   }
 }
 
@@ -99,10 +115,12 @@ async function deactivateAdmin(req, res) {
 async function deleteAdmin(req, res) {
   try {
     const success = await adminService.deleteAdmin(req.params.id);
-    if (!success) return res.status(404).json({ message: 'Admin not found' });
-    res.json({ message: 'Admin deleted' });
+    if (!success) {
+      return res.status(404).json({ status_code: 404, success: false, message: 'Admin not found' });
+    }
+    res.status(200).json({ status_code: 200, success: true, message: 'Admin deleted' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status_code: 500, success: false, error: err.message });
   }
 }
 

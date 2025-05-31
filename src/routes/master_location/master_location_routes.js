@@ -3,11 +3,11 @@ const { addLocation, getAllLocation, getOneLocation, editLocation, nonActiveLoca
 const { authorizeRole } = require("../../middlewares/auth");
 const router = express.Router();
 
-router.post('/addLocation', authorizeRole('admin'), addLocation)
+router.post('/addLocation', addLocation)
 router.get('/getAllLocation', getAllLocation)
 router.get('/getOneLocation/:id', getOneLocation)
-router.put('/editLocation/:id', authorizeRole('admin'), editLocation)
-router.put('/nonActiveLocation/:id', authorizeRole('admin'), nonActiveLocation)
-router.delete('/deleteLocation/:id', authorizeRole('admin'), deleteLocation)
+router.put('/editLocation/:id', editLocation)
+router.put('/nonActiveLocation/:id', nonActiveLocation)
+router.delete('/deleteLocation/:id', deleteLocation)
 
 module.exports = router;

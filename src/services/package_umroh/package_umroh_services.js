@@ -11,7 +11,7 @@ const createPakcageUmroh = async (data) => {
         package_name,
         description,
         date_departure,
-        airline,
+        airline, S
         duration,
         quota,
         quota_update,
@@ -19,34 +19,26 @@ const createPakcageUmroh = async (data) => {
         schedules,
         hotel,
         facilities,
-        // images
     } = data;
 
     const t = await sequelize.transaction();
 
     try {
-        const mitra = await models.mitra.findByPk(id_mitra);
-        if (!mitra) {
-            return res.status(404).json({ message: 'Mitra not found' })
-        }
+        const mitra = await models.Mitra.findByPk(id_mitra);
+        if (!mitra) throw new Error("Mitra not found");
 
         const typeDeparture = await models.master_type_departure.findByPk(id_type_departure);
-        if (!typeDeparture) {
-            return res.status(404).json({ message: 'Type Departure not found' })
-        }
+        if (!typeDeparture) throw new Error("Type Departure not found");
 
         const categoryDeparture = await models.master_category_departure.findByPk(id_category_departure);
-        if (!categoryDeparture) {
-            return res.status(404).json({ message: 'Category Departure not found' })
-        }
+        if (!categoryDeparture) throw new Error("Category Departure not found");
 
         const locationDeparture = await models.master_location_departure.findByPk(id_location_departure);
-        if (!locationDeparture) {
-            return res.status(404).json({ message: 'Location Departure not found' })
-        }
+        if (!locationDeparture) throw new Error("Location Departure not found");
 
         const packageUmroh = await models.package_umroh.create({
             id_mitra: id_mitra,
+            id_mitra,
             id_category_departure,
             id_location_departure,
             id_type_departure,
@@ -58,7 +50,7 @@ const createPakcageUmroh = async (data) => {
             quota,
             quota_update,
             price,
-        }, { transaction: t })
+        }, { transaction: t });
 
         if (hotel && hotel.length > 0) {
             for (const { id_hotel, description } of hotel) {
@@ -91,22 +83,14 @@ const createPakcageUmroh = async (data) => {
                 }
             }
         }
-
-        // if (images && images.length > 0) {
-        //     for (const images of images) {
-        //         await Package_image.create({
-        //             id_package: packageUmroh.id,
-        //             image_url: foto.url,
-        //         }, { transaction: t });
-        //     }
-        // }
         await t.commit();
         return packageUmroh;
     } catch (error) {
         await t.rollback();
         throw error;
     }
-}
+};
+
 
 const editPakcageUmroh = async (id, data) => {
     const {
@@ -292,3 +276,4 @@ module.exports = {
     getPakcageUmrohById,
     deletePakcageUmroh
 }
+

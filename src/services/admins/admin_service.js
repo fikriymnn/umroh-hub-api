@@ -1,47 +1,92 @@
-const { Admin } = require('../../models');
+const models = require('../../models');
+const sequelize = require('../../config/db');
 const { hashPassword } = require('../../utils/hash');
 
-module.exports = {
-  async createAdmin(data) {
+const createAdmin = async (data) => {
+  const t = await sequelize.transaction();
+  try {
     const { name, email, password, phone_number, address, image_url } = data;
     const hashed = await hashPassword(password);
-    return await Admin.create({
+
+    const newAdmin = await models.Admin.create({
       name,
       email,
       password: hashed,
       phone_number,
       address,
       image_url,
-      is_active: true
-    });
-  },
+      is_active: true,
+    }, { transaction: t });
 
-  async getAllAdmins() {
-    return await Admin.findAll();
-  },
-
-  async getAdminById(id) {
-    return await Admin.findByPk(id);
-  },
-
-  async updateAdmin(id, data) {
-    const admin = await Admin.findByPk(id);
-    if (!admin) return null;
-    await admin.update(data);
-    return admin;
-  },
-
-  async deactivateAdmin(id) {
-    const admin = await Admin.findByPk(id);
-    if (!admin) return null;
-    await admin.update({ is_active: false });
-    return admin;
-  },
-
-  async deleteAdmin(id) {
-    const admin = await Admin.findByPk(id);
-    if (!admin) return null;
-    await admin.destroy();
-    return true;
+    await t.commit();
+    return { success: true, message: 'Admin created successfully', data: newAdmin };
+  } catch (error) {
+    await t.rollback();
+    throw error;
   }
+};
+
+const getAllAdmins = async () => {
+  const admins = await models.Admin.findAll();
+  return { success: true, message: 'All admins fetched', data: admins };
+};
+
+const getAdminById = async (id) => {
+  const admin = await models.Admin.findByPk(id);
+  if (!admin) return { success: false, message: 'Admin not found' };
+  return { success: true, message: 'Admin fetched', data: admin };
+};
+
+const updateAdmin = async (id, data) => {
+  const t = await sequelize.transaction();
+  try {
+    const admin = await models.Admin.findByPk(id);
+    if (!admin) return { success: false, message: 'Admin not found' };
+
+    await admin.update(data, { transaction: t });
+    await t.commit();
+    return { success: true, message: 'Admin updated successfully', data: admin };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+const deactivateAdmin = async (id) => {
+  const t = await sequelize.transaction();
+  try {
+    const admin = await models.Admin.findByPk(id);
+    if (!admin) return { success: false, message: 'Admin not found' };
+
+    await admin.update({ is_active: false }, { transaction: t });
+    await t.commit();
+    return { success: true, message: 'Admin deactivated successfully', data: admin };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+const deleteAdmin = async (id) => {
+  const t = await sequelize.transaction();
+  try {
+    const admin = await models.Admin.findByPk(id);
+    if (!admin) return { success: false, message: 'Admin not found' };
+
+    await admin.destroy({ transaction: t });
+    await t.commit();
+    return { success: true, message: 'Admin deleted successfully' };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+module.exports = {
+  createAdmin,
+  getAllAdmins,
+  getAdminById,
+  updateAdmin,
+  deactivateAdmin,
+  deleteAdmin
 };

@@ -59,9 +59,9 @@ const addPackageUmroh = async (req, res) => {
             facilities,
             // images
         });
-        res.status(200).json({ status_code: 200, success: true, message: 'Package Umroh created successfully', packageUmroh });
+        return res.status(200).json({ status_code: 200, success: true, message: 'Package Umroh created successfully', packageUmroh });
     } catch (error) {
-        res.status(500).json({ status_code: 500, success: false, message: error.message });
+        return res.status(500).json({ status_code: 500, success: false, message: error.message });
     }
 };
 
@@ -123,7 +123,7 @@ const editPackageUmroh = async (req, res) => {
 
 const deletePackageUmroh = async (req, res) => {
     try {
-        const packageUmroh = await deletePakcageUmroh(req.params.id)
+        const packageUmroh = await getOnePackageUmroh(req.params.id)
         if (!packageUmroh) {
             res.status(404).json({ status_code: 404, success: false, message: 'Package Umroh Departure not found' })
         }

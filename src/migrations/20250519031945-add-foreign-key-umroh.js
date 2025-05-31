@@ -14,39 +14,39 @@ module.exports = {
     //   onUpdate: 'CASCADE',
     //   onDelete: 'SET NULL',
     // });
-    await queryInterface.addConstraint('package_umroh', {
-      fields: ['id_category_departure'],
-      type: 'foreign key',
-      name: 'fk_packageumroh_category_departure',
-      references: {
-        table: 'master_category_departure',
-        field: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-    });
-    await queryInterface.addConstraint('package_umroh', {
-      fields: ['id_location_departure'],
-      type: 'foreign key',
-      name: 'fk_packageumroh_location_departure',
-      references: {
-        table: 'master_location_departure',
-        field: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-    });
-    await queryInterface.addConstraint('package_umroh', {
-      fields: ['id_mitra'],
-      type: 'foreign key',
-      name: 'fk_packageumroh_mitra',
-      references: {
-        table: 'mitra',
-        field: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-    });
+    // await queryInterface.addConstraint('package_umroh', {
+    //   fields: ['id_category_departure'],
+    //   type: 'foreign key',
+    //   name: 'fk_packageumroh_category_departure',
+    //   references: {
+    //     table: 'master_category_departure',
+    //     field: 'id',
+    //   },
+    //   onUpdate: 'CASCADE',
+    //   onDelete: 'SET NULL',
+    // });
+    // await queryInterface.addConstraint('package_umroh', {
+    //   fields: ['id_location_departure'],
+    //   type: 'foreign key',
+    //   name: 'fk_packageumroh_location_departure',
+    //   references: {
+    //     table: 'master_location_departure',
+    //     field: 'id',
+    //   },
+    //   onUpdate: 'CASCADE',
+    //   onDelete: 'SET NULL',
+    // });
+    // await queryInterface.addConstraint('package_umroh', {
+    //   fields: ['id_mitra'],
+    //   type: 'foreign key',
+    //   name: 'fk_packageumroh_mitra',
+    //   references: {
+    //     table: 'mitra',
+    //     field: 'id',
+    //   },
+    //   onUpdate: 'CASCADE',
+    //   onDelete: 'SET NULL',
+    // });
     // await queryInterface.addConstraint('package_image', {
     //   fields: ['id_package'],
     //   type: 'foreign key',
@@ -104,10 +104,10 @@ module.exports = {
     // });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeConstraint('package_umroh', 'fk_packageumroh_category_departure');
+    // await queryInterface.removeConstraint('package_umroh', 'fk_packageumroh_category_departure');
     // await queryInterface.removeConstraint('package_umroh', 'fk_packageumroh_type_departure');
-    await queryInterface.removeConstraint('package_umroh', 'fk_packageumroh_location_departure');
-    await queryInterface.removeConstraint('package_umroh', 'fk_packageumroh_mitra');
+    // await queryInterface.removeConstraint('package_umroh', 'fk_packageumroh_location_departure');
+    // await queryInterface.removeConstraint('package_umroh', 'fk_packageumroh_mitra');
     // await queryInterface.removeConstraint('package_image', 'fk_packageumroh_package_image');
     // await queryInterface.removeConstraint('package_hotel', 'fk_packageumroh_hotel');
     // await queryInterface.removeConstraint('package_hotel', 'fk_packageumroh_packageHotel');

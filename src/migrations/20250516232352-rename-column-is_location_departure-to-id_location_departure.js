@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // // await queryInterface.renameColumn('package_umrohs', 'is_location_departure', 'id_location_departure');
+    await queryInterface.renameColumn('package_umrohs', 'is_location_departure', 'id_location_departure');
     // await queryInterface.renameTable('package_umroh', 'package_umroh');
     // await queryInterface.renameTable('package_image', 'package_image');
     // // await queryInterface.renameTable('master_hotels', 'master_hotel');
@@ -47,7 +47,7 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    // // await queryInterface.renameColumn('package_umrohs', 'id_location_departure', 'is_location_departure');
+    await queryInterface.renameColumn('package_umrohs', 'id_location_departure', 'is_location_departure');
     // await queryInterface.renameTable('package_umroh', 'packages_umroh');
     // await queryInterface.renameTable('package_image', 'packages_image');
     // // await queryInterface.renameTable('master_type_departure', 'master_type_departures');
