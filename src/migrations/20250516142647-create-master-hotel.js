@@ -17,28 +17,6 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       hotel_name: {
-<<<<<<< HEAD
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      hotel_type: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      room_type: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      address: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      // Jika kamu ingin menambahkan image_url juga, tinggal uncomment ini:
-      // image_url: {
-      //   type: Sequelize.STRING,
-      //   allowNull: true
-      // },
-=======
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -54,7 +32,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
->>>>>>> 9dcbdda345a95542b2ce894e156b0aa0c9cc10de
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

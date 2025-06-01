@@ -8,7 +8,7 @@ const authenticate = require('../../middlewares/auth');
 router.post('/register', adminController.registerAdmin);
 
 // Login dan Logout
-router.post('/login', adminController.loginAdmin);
+// router.post('/login', adminController.loginAdmin);
 router.post('/logout', authenticate(['admin']), adminController.logoutAdmin);
 
 router.get('/',adminController.getAllAdmins);
