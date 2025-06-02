@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   foreignKey: 'id_user',
   as: 'user'
 });
-order.belongsTo(models.Mitra, { // <-- sebelumnya models.mitra, ubah jadi kapital
+order.belongsTo(models.Mitra, { 
   foreignKey: 'id_mitra',
   as: 'mitra'
 });

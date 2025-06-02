@@ -11,7 +11,7 @@ const createPakcageUmroh = async (data) => {
         package_name,
         description,
         date_departure,
-        airline, S
+        airline,
         duration,
         quota,
         quota_update,

@@ -1,8 +1,18 @@
 const models = require('../../models');
+const sequelize = require("../../config/db");
+
 
 const createMasterCategoryDeparture = async (data) => {
     const { category_name } = data;
-    return await models.master_category_departure.create({ category_name });
+    const t = await sequelize.transaction();
+    try {
+        const categoryDeparture = await models.master_category_departure.create({ category_name }, { transaction: t });
+        await t.commit();
+        return categoryDeparture;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
 };
 
 const getMasterCategoryDeparture = async () => {
@@ -12,12 +22,20 @@ const getMasterCategoryDeparture = async () => {
 const getMasterCategoryDepartureById = async (id) => {
     return await models.master_category_departure.findOne({ where: { id } });
 };
-
 const updateMasterCategoryDeparture = async (id, data) => {
     const { category_name } = data;
-    await models.master_category_departure.update({ category_name }, { where: { id } });
-    const newCategory = await models.master_category_departure.findOne({ where: { id } });
-    return await newCategory
+    const t = await sequelize.transaction();
+    try {
+        const categoryDeparture = await models.master_category_departure.findOne({ where: { id } });
+        if (!categoryDeparture) throw new Error("Category Departure not found");
+
+        await models.master_category_departure.update({ category_name }, { where: { id }, transaction: t });
+        await t.commit();
+        return categoryDeparture();
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
 };
 
 const nonActiveMasterCategoryDeparture = async (id) => {
