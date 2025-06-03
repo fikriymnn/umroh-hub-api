@@ -60,6 +60,24 @@ module.exports = {
     }
   },
 
+ async reactivateUser (id) {
+  const t = await sequelize.transaction();
+  try {
+    const user = await models.User.findByPk(id);
+    if (!user) return { success: false, message: 'User not found' };
+
+    if (user.is_active) return { success: false, message: 'User is already active' };
+
+    await user.update({ is_active: true }, { transaction: t });
+    await t.commit();
+    return { success: true, message: 'User reactivated successfully', data: user };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+},
+
+
   async deactivateUser(id) {
     const t = await sequelize.transaction();
     try {

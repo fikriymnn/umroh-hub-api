@@ -64,6 +64,24 @@ const updateMitra = async (id, data) => {
   }
 };
 
+const reactivateMitra = async (id) => {
+  const t = await sequelize.transaction();
+  try {
+    const mitra = await models.Mitra.findByPk(id);
+    if (!mitra) return { success: false, message: 'Mitra not found' };
+
+    if (mitra.is_active) return { success: false, message: 'Mitra is already active' };
+
+    await mitra.update({ is_active: true }, { transaction: t });
+    await t.commit();
+    return { success: true, message: 'Mitra reactivated successfully', data: mitra };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+
 const deactivateMitra = async (id) => {
   const t = await sequelize.transaction();
   try {
@@ -99,6 +117,7 @@ module.exports = {
   getAllMitras,
   getMitraById,
   updateMitra,
+  reactivateMitra,
   deactivateMitra,
   deleteMitra
 };

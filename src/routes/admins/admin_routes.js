@@ -14,6 +14,7 @@ router.post('/logout', authenticate(['admin']), adminController.logoutAdmin);
 router.get('/',adminController.getAllAdmins);
 router.get('/:id',adminController.getAdminById);
 router.put('/:id',adminController.updateAdmin);
+router.patch('/:id/reactivate', adminController.reactivateAdmin);
 router.patch('/:id/deactivate', adminController.deactivateAdmin);
 router.delete('/:id', adminController.deleteAdmin);
 

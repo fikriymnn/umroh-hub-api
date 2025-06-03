@@ -47,7 +47,7 @@ async function loginAdmin(req, res) {
 // LOGOUT
 
 const logoutAdmin = async (req, res) => {
-  const id = req.user.id
+  const id = req.admin.id
   try {
       res.clearCookie('token', {httpOnly: true, sameSite: "None",secure: true, path: "/"});
       console.log('logout berhasil');
@@ -98,18 +98,85 @@ async function updateAdmin(req, res) {
   }
 }
 
-// DEACTIVATE
-async function deactivateAdmin(req, res) {
+// REACTIVATE
+async function reactivateAdmin(req, res) {
   try {
-    const admin = await adminService.deactivateAdmin(req.params.id);
+    const admin = await adminService.getAdminById(req.params.id);
+    
     if (!admin) {
-      return res.status(404).json({ status_code: 404, success: false, message: 'Admin not found' });
+      return res.status(404).json({
+        status_code: 404,
+        success: false,
+        message: 'Admin not found'
+      });
     }
-    res.status(200).json({ status_code: 200, success: true, message: 'Admin deactivated', data: admin });
+
+    if (admin.is_active) {
+      return res.status(200).json({
+        status_code: 200,
+        success: true,
+        message: 'Admin is already active'
+      });
+    }
+
+    const reactivatedAdmin = await adminService.reactivateAdmin(req.params.id);
+
+    res.status(200).json({
+      status_code: 200,
+      success: true,
+      message: 'Admin reactivated',
+      data: reactivatedAdmin
+    });
+
   } catch (err) {
-    res.status(500).json({ status_code: 500, success: false, error: err.message });
+    res.status(500).json({
+      status_code: 500,
+      success: false,
+      error: err.message
+    });
   }
 }
+
+
+
+// DEACTIVATE ADMIN
+async function deactivateAdmin(req, res) {
+  try {
+    const admin = await adminService.getAdminById(req.params.id);
+    if (!admin) {
+      return res.status(404).json({
+        status_code: 404,
+        success: false,
+        message: 'Admin not found'
+      });
+    }
+
+    if (!admin.is_active) {
+      return res.status(200).json({
+        status_code: 200,
+        success: true,
+        message: 'Admin already deactivated'
+      });
+    }
+
+    const result = await adminService.deactivateAdmin(req.params.id);
+
+    res.status(200).json({
+      status_code: 200,
+      success: true,
+      message: 'Admin deactivated',
+      data: result
+    });
+  } catch (err) {
+    res.status(500).json({
+      status_code: 500,
+      success: false,
+      error: err.message
+    });
+  }
+}
+
+
 
 // DELETE
 async function deleteAdmin(req, res) {
@@ -131,6 +198,7 @@ module.exports = {
   getAllAdmins,
   getAdminById,
   updateAdmin,
+  reactivateAdmin,
   deactivateAdmin,
   deleteAdmin
 };

@@ -52,6 +52,24 @@ const updateAdmin = async (id, data) => {
   }
 };
 
+
+const reactivateAdmin = async (id) => {
+  const t = await sequelize.transaction();
+  try {
+    const admin = await models.Admin.findByPk(id);
+    if (!admin) return { success: false, message: 'Admin not found' };
+
+    if (admin.is_active) return { success: false, message: 'Admin is already active' };
+
+    await admin.update({ is_active: true }, { transaction: t });
+    await t.commit();
+    return { success: true, message: 'Admin reactivated successfully', data: admin };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
 const deactivateAdmin = async (id) => {
   const t = await sequelize.transaction();
   try {
@@ -87,6 +105,7 @@ module.exports = {
   getAllAdmins,
   getAdminById,
   updateAdmin,
+  reactivateAdmin,
   deactivateAdmin,
   deleteAdmin
 };

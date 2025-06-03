@@ -9,7 +9,7 @@ router.get('/', userController.getAllUsers);
 router.get('/:id', userController.getUserById);
 
 router.put('/:id', userController.updateUser);
-
+router.patch('/:id/reactivate', userController.reactivateUser);
 router.patch('/:id/deactivate', userController.deactivateUser);
 router.delete('/:id', userController.deleteUser);
 router.get('/me', authenticate(['user']), userController.getMe)
