@@ -8,7 +8,7 @@ const createMitra = async (data) => {
     const {
       name, email, password, phone_number, address,
       compamy_name, website, nib, npwp, siup,
-      siuppiu, akta, image_url
+      siuppiu, akta, image_url,description
     } = data;
 
     const hashed = await hashPassword(password);
@@ -27,10 +27,13 @@ const createMitra = async (data) => {
       siuppiu,
       akta,
       image_url,
-      is_active: true
+       description,
+      is_active: true,
+     
     }, { transaction: t });
 
     await t.commit();
+    
     return { success: true, message: 'Mitra created successfully', data: newMitra };
   } catch (error) {
     await t.rollback();
