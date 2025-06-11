@@ -11,6 +11,7 @@ router.post('/register', adminController.registerAdmin);
 // router.post('/login', adminController.loginAdmin);
 router.get('/me', authenticate(['admin']), adminController.getMe);
 router.post('/logout', authenticate(['admin']), adminController.logoutAdmin);
+
 router.get('/', adminController.getAllAdmins);
 router.get('/:id', adminController.getAdminById);
 router.put('/:id', adminController.updateAdmin);

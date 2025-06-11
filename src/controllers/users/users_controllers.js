@@ -82,34 +82,80 @@ module.exports = {
       res.status(500).json({ error: err.message });
     }
   },
-
-
-
-  async deactivateUser(req, res) {
-    try {
-      const user = await userService.deactivateUser(req.params.id);
-      if (!user) {
-        return res.status(404).json({
-          status_code: 404,
-          success: false,
-          message: 'User not found'
-        });
-      }
-
-      res.status(200).json({
-        status_code: 200,
-        success: true,
-        message: 'User deactivated',
-        data: user
-      });
-    } catch (err) {
-      res.status(500).json({
-        status_code: 500,
+// REACTIVATE
+async  reactivateUser(req, res) {
+  try {
+    const user = await userService.getUserById(req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({
+        status_code: 404,
         success: false,
-        error: err.message
+        message: 'User not found'
       });
     }
-  },
+
+    if (user.is_active) {
+      return res.status(200).json({
+        status_code: 200,
+        success: true,
+        message: 'User is already active'
+      });
+    }
+
+    const reactivatedUser = await userService.reactivateUser(req.params.id);
+
+    res.status(200).json({
+      status_code: 200,
+      success: true,
+      message: 'User reactivated',
+      data: reactivatedUser
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      status_code: 500,
+      success: false,
+      error: err.message
+    });
+  }
+},
+
+async deactivateUser(req, res) {
+  try {
+    const user = await userService.getUserById(req.params.id); // pakai get dulu
+
+    if (!user) {
+      return res.status(404).json({
+        status_code: 404,
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (!user.is_active) {
+      return res.status(200).json({
+        status_code: 200,
+        success: true,
+        message: 'User is already deactivated'
+      });
+    }
+
+    const updated = await userService.deactivateUser(req.params.id);
+    res.status(200).json({
+      status_code: 200,
+      success: true,
+      message: 'User deactivated',
+      data: updated
+    });
+  } catch (err) {
+    res.status(500).json({
+      status_code: 500,
+      success: false,
+      error: err.message
+    });
+  }
+},
 
   // DELETE
   async deleteUser(req, res) {

@@ -7,7 +7,7 @@ const createMitra = async (data) => {
   try {
     const {
       name, email, password, phone_number, address,
-      company_name, website, nib, npwp, siup,
+      compamy_name, website, nib, npwp, siup,
       siuppiu, akta, image_url
     } = data;
 
@@ -27,10 +27,13 @@ const createMitra = async (data) => {
       siuppiu,
       akta,
       image_url,
-      is_active: true
+      description,
+      is_active: true,
+
     }, { transaction: t });
 
     await t.commit();
+
     return { success: true, message: 'Mitra created successfully', data: newMitra };
   } catch (error) {
     await t.rollback();
@@ -150,6 +153,24 @@ const updateMitra = async (id, data) => {
   }
 };
 
+const reactivateMitra = async (id) => {
+  const t = await sequelize.transaction();
+  try {
+    const mitra = await models.Mitra.findByPk(id);
+    if (!mitra) return { success: false, message: 'Mitra not found' };
+
+    if (mitra.is_active) return { success: false, message: 'Mitra is already active' };
+
+    await mitra.update({ is_active: true }, { transaction: t });
+    await t.commit();
+    return { success: true, message: 'Mitra reactivated successfully', data: mitra };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+
 const deactivateMitra = async (id) => {
   const t = await sequelize.transaction();
   try {
@@ -194,6 +215,7 @@ module.exports = {
   getAllMitras,
   getMitraById,
   updateMitra,
+  reactivateMitra,
   deactivateMitra,
   deleteMitra,
   getMitraMe

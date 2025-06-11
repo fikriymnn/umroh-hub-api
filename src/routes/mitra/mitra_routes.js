@@ -10,6 +10,7 @@ router.get('/', mitraController.getAllMitras);
 router.get('/:id', mitraController.getMitraById);
 router.put('/:id', mitraController.updateMitra);
 router.patch('/:id/deactivate', mitraController.deactivateMitra);
+router.patch('/:id/reactivate', mitraController.reactivateMitra);
 router.delete('/:id', mitraController.deleteMitra);
 
 module.exports = router;

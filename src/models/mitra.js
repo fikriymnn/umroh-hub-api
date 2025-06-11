@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     siuppiu: DataTypes.STRING,
     akta: DataTypes.STRING,
     image_url: DataTypes.STRING,
+    description: DataTypes.STRING,
     is_active: DataTypes.BOOLEAN
   }, {
     sequelize,

@@ -96,32 +96,83 @@ module.exports = {
     }
   },
 
-  // DEACTIVATE
-  async deactivateMitra(req, res) {
-    try {
-      const mitra = await mitraService.deactivateMitra(req.params.id);
-      if (!mitra) {
-        return res.status(404).json({
-          status_code: 404,
-          success: false,
-          message: 'Mitra not found'
-        });
-      }
-
-      res.status(200).json({
-        status_code: 200,
-        success: true,
-        message: 'Mitra deactivated',
-        data: mitra
-      });
-    } catch (err) {
-      res.status(500).json({
-        status_code: 500,
+  // REACTIVATE
+async reactivateMitra(req, res) {
+  try {
+    const mitra = await mitraService.getMitraById(req.params.id);
+    
+    if (!mitra) {
+      return res.status(404).json({
+        status_code: 404,
         success: false,
-        error: err.message
+        message: 'Mitra not found'
       });
     }
-  },
+
+    if (mitra.is_active) {
+      return res.status(200).json({
+        status_code: 200,
+        success: true,
+        message: 'Mitra is already active'
+      });
+    }
+
+    const reactivateMitra = await mitraService.reactivateMitra(req.params.id);
+
+    res.status(200).json({
+      status_code: 200,
+      success: true,
+      message: 'Mitra reactivated',
+      data: reactivateMitra
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      status_code: 500,
+      success: false,
+      error: err.message
+    });
+  }
+},
+
+
+
+async deactivateMitra(req, res) {
+  try {
+    const mitra = await mitraService.getMitraById(req.params.id); // pakai get dulu
+
+    if (!mitra) {
+      return res.status(404).json({
+        status_code: 404,
+        success: false,
+        message: 'Mitra not found'
+      });
+    }
+
+    if (!mitra.is_active) {
+      return res.status(200).json({
+        status_code: 200,
+        success: true,
+        message: 'Mitra is already deactivated'
+      });
+    }
+
+    const updated = await mitraService.deactivateMitra(req.params.id);
+    res.status(200).json({
+      status_code: 200,
+      success: true,
+      message: 'Mitra deactivated',
+      data: updated
+    });
+  } catch (err) {
+    res.status(500).json({
+      status_code: 500,
+      success: false,
+      error: err.message
+    });
+  }
+},
+
 
   // DELETE
   async deleteMitra(req, res) {
