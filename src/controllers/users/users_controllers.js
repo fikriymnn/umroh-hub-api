@@ -5,6 +5,15 @@ module.exports = {
   async createUser(req, res) {
     try {
       const newUser = await userService.createUser(req.body);
+
+if (!newUser.success) {
+      return res.status(400).json({
+        status_code: 400,
+        success: false,
+        message: newUser.message
+      });
+    }
+
       res.status(201).json({
         status_code: 201,
         success: true,

@@ -38,6 +38,7 @@ order.belongsTo(models.package_umroh, {
     bank: DataTypes.STRING,
     no_rek: DataTypes.STRING,
     transaction_proof_url: DataTypes.STRING,
+    by_name_of: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'order',

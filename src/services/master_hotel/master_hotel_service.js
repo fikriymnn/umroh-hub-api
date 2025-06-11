@@ -5,9 +5,9 @@ module.exports = {
   async createHotel(data) {
     const t = await sequelize.transaction();
     try {
-      const { id_mitra, hotel_name, hotel_type, room_type, address } = data;
+      const { id_mitra, hotel_name, hotel_type, room_type, address,image_url } = data;
 
-      if (!id_mitra || !hotel_name || !hotel_type || !room_type || !address) {
+      if (!id_mitra || !hotel_name || !hotel_type || !room_type || !address || !image_url) {
         return { success: false, message: 'All fields are required' };
       }
 
@@ -17,7 +17,9 @@ module.exports = {
         hotel_type,
         room_type,
         address,
+        image_url,
         is_active: true
+        
       }, { transaction: t });
 
       await t.commit();

@@ -6,6 +6,13 @@ const createAdmin = async (data) => {
   const t = await sequelize.transaction();
   try {
     const { name, email, password, phone_number, address, image_url } = data;
+      // Cek apakah email sudah digunakan
+    const existing = await models.Admin.findOne({ where: { email } });
+    if (existing) {
+      await t.rollback();
+      return { success: false, message: 'Email already in use' };
+    }
+    
     const hashed = await hashPassword(password);
 
     const newAdmin = await models.Admin.create({
