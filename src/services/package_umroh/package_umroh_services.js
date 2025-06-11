@@ -19,6 +19,7 @@ const createPakcageUmroh = async (data) => {
         schedules,
         hotel,
         facilities,
+        images
     } = data;
 
     const t = await sequelize.transaction();
@@ -50,6 +51,7 @@ const createPakcageUmroh = async (data) => {
             quota,
             quota_update,
             price,
+            isActive: true
         }, { transaction: t });
 
         if (hotel && hotel.length > 0) {
@@ -68,7 +70,8 @@ const createPakcageUmroh = async (data) => {
             for (const schedule of schedules) {
                 const packageSchedule = await models.package_schedule.create({
                     id_package: packageUmroh.id,
-                    title: schedule.title
+                    title: schedule.title,
+                    image_url: schedule.image_url
                 }, { transaction: t });
 
                 if (schedule.details && schedule.details.length > 0) {
@@ -81,6 +84,16 @@ const createPakcageUmroh = async (data) => {
                         }, { transaction: t });
                     }
                 }
+            }
+        }
+
+        if (images && images.length > 0) {
+            // await models.package_image.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
+            for (const image of images) {
+                await models.package_image.create({
+                    id_package: packageUmroh.id,
+                    image_url: image.image_url,
+                }, { transaction: t });
             }
         }
         await t.commit();
@@ -107,7 +120,7 @@ const editPakcageUmroh = async (id, data) => {
         price,
         schedules,
         hotel,
-        // images,
+        images,
         facilities
     } = data;
 
@@ -129,12 +142,12 @@ const editPakcageUmroh = async (id, data) => {
             return res.status(404).json({ message: 'Category Departure not found' })
         }
 
-        const locationDeparture = await models.master_location.findByPk(id_location_departure);
+        const locationDeparture = await models.master_location_departure.findByPk(id_location_departure);
         if (!locationDeparture) {
             return res.status(404).json({ message: 'Location Departure not found' })
         }
 
-        models.package_umroh.update({
+        await models.package_umroh.update({
             id_category_departure,
             id_location_departure,
             id_type_departure,
@@ -151,45 +164,60 @@ const editPakcageUmroh = async (id, data) => {
             , transaction: t
         })
 
-        await models.package_hotel.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
         if (hotel && hotel.length > 0) {
+            await models.package_hotel.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
             for (const { id_hotel, description } of hotel) {
                 await models.package_hotel.create({ id_package: packageUmroh.id, id_hotel, description }, { transaction: t });
             }
         }
 
-        await models.package_facilities.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
         if (facilities && facilities.length > 0) {
+            await models.package_facilities.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
             for (const { description } of facilities) {
                 await models.package_facilities.create({ id_package: packageUmroh.id, description }, { transaction: t });
             }
         }
 
-        await models.package_hotel.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
         if (schedules && schedules.length > 0) {
+            const oldSchedulesData = await models.package_schedule.findAll({ where: { id_package: packageUmroh.id }, transaction: t });
+            for (const schedule of oldSchedulesData) {
+                await models.detail_activity.destroy({ where: { id_schedule: schedule.id }, transaction: t });
+            }
+            await models.package_schedule.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
+
             for (const schedule of schedules) {
                 const packageSchedule = await models.package_schedule.create({
                     id_package: packageUmroh.id,
-                    title: schedule.title
+                    title: schedule.title,
+                    image_url: schedule.image_url
                 }, { transaction: t });
 
                 if (schedule.details && schedule.details.length > 0) {
                     for (const detail of schedule.details) {
-                        await models.detail_activity.create({
-                            id_schedule: packageSchedule.id,
-                            description: detail.description
-                        }, { transaction: t });
+                        try {
+                            await models.detail_activity.create({
+                                id_schedule: packageSchedule.id,
+                                time: detail.time,
+                                activity: detail.activity,
+                                note: detail.note,
+                                image_url: detail.image_url
+                            }, { transaction: t });
+                        } catch (err) {
+                            console.error('Gagal buat detail_activity:', err);
+                            throw err;
+                        }
                     }
+
                 }
             }
         }
 
-        await models.package_image.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
         if (images && images.length > 0) {
-            for (const images of images) {
+            await models.package_image.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
+            for (const image of images) {
                 await models.package_image.create({
                     id_package: packageUmroh.id,
-                    image_url: foto.url,
+                    image_url: image.image_url,
                 }, { transaction: t });
             }
         }
@@ -215,6 +243,16 @@ const getPakcageUmroh = async () => {
             },
             {
                 model: models.package_hotel,
+                include: [
+                    {
+                        model: models.master_hotel,
+                        include: [
+                            {
+                                model: models.hotel_facilities
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 model: models.package_facilities,
@@ -236,6 +274,9 @@ const getPakcageUmrohById = async (id) => {
         where: { id: id },
         include: [
             {
+                model: models.Mitra
+            },
+            {
                 model: models.master_type_departure
             },
             {
@@ -246,6 +287,16 @@ const getPakcageUmrohById = async (id) => {
             },
             {
                 model: models.package_hotel,
+                include: [
+                    {
+                        model: models.master_hotel,
+                        include: [
+                            {
+                                model: models.hotel_facilities
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 model: models.package_facilities,
@@ -262,18 +313,36 @@ const getPakcageUmrohById = async (id) => {
     });
 };
 
-const deletePakcageUmroh = async (id) => {
-    await models.package_hotel.destroy({ where: { id_package: id } });
-    await models.package_facilities.destroy({ where: { id_package: id } });
-    await models.package_schedule.destroy({ where: { id_package: id } });
-    // await models.detail_activity.destroy({ where: { id } });
-    return await models.package_umroh.destroy({ where: { id } });
+const deletePackageUmrohServices = async (id) => {
+    const t = await models.sequelize.transaction();
+    try {
+        const pkg = await models.package_umroh.findByPk(id);
+        if (!pkg) throw new Error('Package Umroh not found');
+
+        await models.package_hotel.destroy({ where: { id_package: id }, transaction: t });
+        await models.package_facilities.destroy({ where: { id_package: id }, transaction: t });
+        await models.package_schedule.destroy({ where: { id_package: id }, transaction: t });
+
+        const result = await models.package_umroh.destroy({ where: { id }, transaction: t });
+
+        await t.commit();
+        return result;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+};
+
+const nonActivePackageUmrohServices = async (id) => {
+    await models.package_umroh.update({ is_active: false }, { where: { id } });
+    return await models.package_umroh.findOne({ where: { id } });
 };
 module.exports = {
     createPakcageUmroh,
     editPakcageUmroh,
     getPakcageUmroh,
     getPakcageUmrohById,
-    deletePakcageUmroh
+    deletePackageUmrohServices,
+    nonActivePackageUmrohServices
 }
 

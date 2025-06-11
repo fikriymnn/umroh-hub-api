@@ -7,7 +7,7 @@ const createMitra = async (data) => {
   try {
     const {
       name, email, password, phone_number, address,
-      compamy_name, website, nib, npwp, siup,
+      company_name, website, nib, npwp, siup,
       siuppiu, akta, image_url
     } = data;
 
@@ -19,7 +19,7 @@ const createMitra = async (data) => {
       password: hashed,
       phone_number,
       address,
-      compamy_name,
+      company_name,
       website,
       nib,
       npwp,
@@ -39,12 +39,98 @@ const createMitra = async (data) => {
 };
 
 const getAllMitras = async () => {
-  const mitras = await models.Mitra.findAll();
+  const mitras = await models.Mitra.findAll(
+    {
+      include: [
+        {
+          model: models.package_umroh,
+          include: [
+            {
+              model: models.master_type_departure
+            },
+            {
+              model: models.master_category_departure
+            },
+            {
+              model: models.master_location_departure
+            },
+            {
+              model: models.package_hotel,
+              include: [
+                {
+                  model: models.master_hotel,
+                  include: [
+                    {
+                      model: models.hotel_facilities
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              model: models.package_facilities,
+            },
+            {
+              model: models.package_schedule,
+              include: [
+                {
+                  model: models.detail_activity
+                }
+              ]
+            },
+          ]
+        }
+      ]
+    });
   return { success: true, message: 'All mitras fetched', data: mitras };
 };
 
 const getMitraById = async (id) => {
-  const mitra = await models.Mitra.findByPk(id);
+  const mitra = await models.Mitra.findOne(
+    {
+      where: { id: id },
+      include: [
+        {
+          model: models.package_umroh,
+          include: [
+            {
+              model: models.master_type_departure
+            },
+            {
+              model: models.master_category_departure
+            },
+            {
+              model: models.master_location_departure
+            },
+            {
+              model: models.package_hotel,
+              include: [
+                {
+                  model: models.master_hotel,
+                  include: [
+                    {
+                      model: models.hotel_facilities
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              model: models.package_facilities,
+            },
+            {
+              model: models.package_schedule,
+              include: [
+                {
+                  model: models.detail_activity
+                }
+              ]
+            },
+          ]
+        }
+      ]
+    }
+  );
   if (!mitra) return { success: false, message: 'Mitra not found' };
   return { success: true, message: 'Mitra fetched', data: mitra };
 };
@@ -94,11 +180,21 @@ const deleteMitra = async (id) => {
   }
 };
 
+const getMitraMe = async (id) => {
+  console.log(id);
+  const mitra = await models.Mitra.findOne({ where: { id: id } });
+  if (!mitra) {
+    throw new Error('Mitra not found');
+  }
+  return mitra;
+}
+
 module.exports = {
   createMitra,
   getAllMitras,
   getMitraById,
   updateMitra,
   deactivateMitra,
-  deleteMitra
+  deleteMitra,
+  getMitraMe
 };

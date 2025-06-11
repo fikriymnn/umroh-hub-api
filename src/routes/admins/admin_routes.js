@@ -9,11 +9,11 @@ router.post('/register', adminController.registerAdmin);
 
 // Login dan Logout
 // router.post('/login', adminController.loginAdmin);
+router.get('/me', authenticate(['admin']), adminController.getMe);
 router.post('/logout', authenticate(['admin']), adminController.logoutAdmin);
-
-router.get('/',adminController.getAllAdmins);
-router.get('/:id',adminController.getAdminById);
-router.put('/:id',adminController.updateAdmin);
+router.get('/', adminController.getAllAdmins);
+router.get('/:id', adminController.getAdminById);
+router.put('/:id', adminController.updateAdmin);
 router.patch('/:id/deactivate', adminController.deactivateAdmin);
 router.delete('/:id', adminController.deleteAdmin);
 

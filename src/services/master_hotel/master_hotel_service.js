@@ -1,13 +1,13 @@
-const { master_hotel } = require('../../models');
+const { master_hotel, hotel_facilities } = require('../../models');
 const sequelize = require('../../config/db');
 
 module.exports = {
   async createHotel(data) {
     const t = await sequelize.transaction();
     try {
-      const { id_mitra, hotel_name, hotel_type, room_type, address } = data;
+      const { id_mitra, hotel_name, hotel_type, room_type, address, facilities } = data;
 
-      if (!id_mitra || !hotel_name || !hotel_type || !room_type || !address) {
+      if (!id_mitra || !hotel_name || !hotel_type || !room_type || !address || !facilities) {
         return { success: false, message: 'All fields are required' };
       }
 
@@ -19,6 +19,12 @@ module.exports = {
         address,
         is_active: true
       }, { transaction: t });
+
+      if (facilities && facilities.length > 0) {
+        for (const { description } of facilities) {
+          await hotel_facilities.create({ id_hotel: newHotel.id, description }, { transaction: t });
+        }
+      }
 
       await t.commit();
       return { success: true, message: 'Hotel created successfully', data: newHotel };

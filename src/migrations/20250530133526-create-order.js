@@ -2,56 +2,60 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-   await queryInterface.createTable('orders', {
-  id: {
-    allowNull: false,
-    autoIncrement: true,
-    primaryKey: true,
-    type: Sequelize.INTEGER
-  },
-  id_user: {
-    type: Sequelize.INTEGER,
-    references: {
-      model: 'user', // harus sesuai tableName di model User
-      key: 'id'
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
-  },
-  id_mitra: {
-    type: Sequelize.INTEGER,
-    references: {
-      model: 'mitra', // harus sesuai tableName di model Mitra
-      key: 'id'
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
-  },
-  id_package: {
-    type: Sequelize.INTEGER,
-    references: {
-      model: 'package_umroh',
-      key: 'id'
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
-  },
+    await queryInterface.createTable('orders', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      id_user: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'user', // harus sesuai tableName di model User
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      id_mitra: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'mitra', // harus sesuai tableName di model Mitra
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      id_package: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'package_umroh',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      order_id: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
 
       subtotal: {
         type: Sequelize.INTEGER
       },
       payment_status: {
-  type: Sequelize.ENUM('pending', 'paid', 'failed'),
-  allowNull: false
-},
+        type: Sequelize.ENUM('pending', 'paid', 'failed'),
+        allowNull: false
+      },
       departure_status: {
         type: Sequelize.BOOLEAN
       },
-  
-order_status: {
-  type: Sequelize.ENUM('waiting', 'confirmed', 'cancelled'),
-  allowNull: false
-},
+
+      order_status: {
+        type: Sequelize.ENUM('waiting', 'confirmed', 'cancelled'),
+        allowNull: false
+      },
 
       payment_method: {
         type: Sequelize.STRING

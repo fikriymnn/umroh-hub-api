@@ -21,7 +21,9 @@ const authenticate = (roles = []) => {
     } catch (error) {
       res.status(401).json({ message: error.message });
     }
+    console.log(process.env.SECRET_KEY);
   };
 };
+
 
 module.exports = authenticate;

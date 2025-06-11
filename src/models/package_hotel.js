@@ -19,7 +19,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   package_hotel.init({
-
     id_package: DataTypes.INTEGER,
     id_hotel: DataTypes.INTEGER,
     description: DataTypes.STRING,

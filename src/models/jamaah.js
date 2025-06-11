@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       // Jamaah milik satu Order
       jamaah.belongsTo(models.order, {
         foreignKey: 'id_order',
-        as: 'order'
+        as: 'jamaah'
       });
     }
   }
@@ -24,8 +24,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'jamaah',
-       tableName: 'jamaah',
-     freezeTableName: true
+    tableName: 'jamaah',
+    freezeTableName: true
   });
   return jamaah;
 };

@@ -1,6 +1,7 @@
 const { User, Mitra, Admin } = require('../models');
 const { comparePassword } = require('../utils/hash');
 const { generateToken } = require('../utils/token');
+require("dotenv").config();
 
 module.exports = {
   // LOGIN ADMIN
@@ -56,7 +57,7 @@ module.exports = {
   // LOGIN MITRA
   async loginMitra(req, res) {
     try {
-      const { email, password } = req.body;
+      const { email, password, name } = req.body;
       const mitra = await Mitra.findOne({ where: { email } });
 
       if (!mitra) {
@@ -64,6 +65,16 @@ module.exports = {
           status_code: 404,
           success: false,
           message: 'Email mitra tidak ditemukan'
+        });
+      }
+
+      const mitraName = await Mitra.findOne({ where: { name } });
+
+      if (!mitraName) {
+        return res.status(404).json({
+          status_code: 404,
+          success: false,
+          message: 'Nama mitra tidak ditemukan'
         });
       }
 
@@ -91,7 +102,7 @@ module.exports = {
         status_code: 200,
         success: true,
         message: 'Login sebagai mitra berhasil',
-        data: { token }
+        data: token
       });
     } catch (err) {
       return res.status(500).json({
@@ -141,7 +152,7 @@ module.exports = {
         status_code: 200,
         success: true,
         message: 'Login sebagai user berhasil',
-        data: { token }
+        data: token
       });
     } catch (err) {
       return res.status(500).json({

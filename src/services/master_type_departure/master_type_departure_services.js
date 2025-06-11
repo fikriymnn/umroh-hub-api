@@ -31,7 +31,7 @@ const updateMasterTypeDeparture = async (id, data) => {
 
         await models.master_type_departure.update({ type_name }, { where: { id }, transaction: t });
         await t.commit();
-        return typeDeparture();
+        return typeDeparture;
     } catch (error) {
         await t.rollback();
         throw error;

@@ -2,8 +2,17 @@ const hotelService = require('../../services/master_hotel/master_hotel_service')
 
 module.exports = {
   async createHotel(req, res) {
+    const { hotel_name, hotel_type, room_type, address, facilities } = req.body;
+    const id_mitra = req.user.id;
     try {
-      const result = await hotelService.createHotel(req.body);
+      const result = await hotelService.createHotel({
+        id_mitra,
+        hotel_name,
+        hotel_type,
+        room_type,
+        address,
+        facilities
+      });
       res.status(201).json(result);
     } catch (err) {
       res.status(400).json({ success: false, error: err.message });

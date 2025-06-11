@@ -49,13 +49,13 @@ async function loginAdmin(req, res) {
 const logoutAdmin = async (req, res) => {
   const id = req.user.id
   try {
-      res.clearCookie('token', {httpOnly: true, sameSite: "None",secure: true, path: "/"});
-      console.log('logout berhasil');
+    res.clearCookie('token', { httpOnly: true, sameSite: "None", secure: true, path: "/" });
+    console.log('logout berhasil');
 
-     
+
     res.status(200).json({ message: 'logout berhasil' });
   } catch (error) {
-      res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 }
 
@@ -88,11 +88,12 @@ async function getAdminById(req, res) {
 // UPDATE
 async function updateAdmin(req, res) {
   try {
-    const admin = await adminService.updateAdmin(req.params.id, req.body);
+    const admin = await adminService.getAdminById(req.params.id);
     if (!admin) {
       return res.status(404).json({ status_code: 404, success: false, message: 'Admin not found' });
     }
-    res.status(200).json({ status_code: 200, success: true, message: 'Admin updated', data: admin });
+    await adminService.updateAdmin(req.params.id, req.body);
+    return res.status(200).json({ status_code: 200, success: true, message: 'Admin updated', data: admin });
   } catch (err) {
     res.status(500).json({ status_code: 500, success: false, error: err.message });
   }
@@ -124,6 +125,32 @@ async function deleteAdmin(req, res) {
   }
 }
 
+async function getMe(req, res) {
+  const { id } = req.user;
+  try {
+    console.log(id);
+    const admin = await adminService.getAdminMe(id);
+    if (!admin) {
+      return res.status(404).json({
+        status_code: 404,
+        success: false,
+        message: 'Admin not found'
+      });
+    }
+    return res.status(200).json({
+      status_code: 200,
+      success: true,
+      data: admin
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status_code: 500,
+      success: false,
+      error: err.message
+    });
+  }
+}
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -132,5 +159,6 @@ module.exports = {
   getAdminById,
   updateAdmin,
   deactivateAdmin,
-  deleteAdmin
+  deleteAdmin,
+  getMe
 };

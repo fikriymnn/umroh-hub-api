@@ -31,7 +31,7 @@ const updateMasterLocation = async (id, data) => {
 
         await models.master_location_departure.update({ location_name }, { where: { id }, transaction: t });
         await t.commit();
-        return locationDeparture();
+        return locationDeparture;
     } catch (error) {
         await t.rollback();
         throw error;

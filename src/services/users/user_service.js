@@ -92,9 +92,13 @@ module.exports = {
     }
   },
 
-  async getMe(id) {
-    const user = await models.User.findByPk(id);
-    if (!user) return { success: false, message: 'User not found' };
-    return { success: true, message: 'User profile retrieved', data: user };
+  async getUserMe(id) {
+    console.log(id);
+    const user = await models.User.findOne({ where: { id: id } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
   }
+
 };

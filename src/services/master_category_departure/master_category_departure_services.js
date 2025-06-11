@@ -31,7 +31,7 @@ const updateMasterCategoryDeparture = async (id, data) => {
 
         await models.master_category_departure.update({ category_name }, { where: { id }, transaction: t });
         await t.commit();
-        return categoryDeparture();
+        return categoryDeparture;
     } catch (error) {
         await t.rollback();
         throw error;

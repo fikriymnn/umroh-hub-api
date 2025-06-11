@@ -147,5 +147,31 @@ module.exports = {
         error: err.message
       });
     }
+  },
+
+  async getMe(req, res) {
+    const { id } = req.user;
+    try {
+      console.log(id);
+      const mitra = await mitraService.getMitraMe(id);
+      if (!mitra) {
+        return res.status(404).json({
+          status_code: 404,
+          success: false,
+          message: 'Mitra not found'
+        });
+      }
+      return res.status(200).json({
+        status_code: 200,
+        success: true,
+        data: mitra
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status_code: 500,
+        success: false,
+        error: err.message
+      });
+    }
   }
 };

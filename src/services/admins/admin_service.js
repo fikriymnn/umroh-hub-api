@@ -82,11 +82,20 @@ const deleteAdmin = async (id) => {
   }
 };
 
+const getAdminMe = async (id) => {
+  console.log(id);
+  const admin = await models.Admin.findOne({ where: { id: id } });
+  if (!admin) {
+    throw new Error('Admin not found');
+  }
+  return admin;
+}
 module.exports = {
   createAdmin,
   getAllAdmins,
   getAdminById,
   updateAdmin,
   deactivateAdmin,
-  deleteAdmin
+  deleteAdmin,
+  getAdminMe
 };

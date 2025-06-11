@@ -19,7 +19,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   master_hotel.init({
-
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     id_mitra: DataTypes.INTEGER,
     is_active: DataTypes.BOOLEAN,
     hotel_name: DataTypes.STRING,

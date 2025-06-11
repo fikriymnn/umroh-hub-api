@@ -12,22 +12,27 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // Order belongs to User, Mitra, and Package
-    order.belongsTo(models.User, {
-  foreignKey: 'id_user',
-  as: 'user'
-});
-order.belongsTo(models.Mitra, { 
-  foreignKey: 'id_mitra',
-  as: 'mitra'
-});
-order.belongsTo(models.package_umroh, {
-  foreignKey: 'id_package',
-  as: 'package_umroh'
-});
+      order.belongsTo(models.User, {
+        foreignKey: 'id_user',
+        as: 'user'
+      });
+      order.belongsTo(models.Mitra, {
+        foreignKey: 'id_mitra',
+        as: 'mitra'
+      });
+      order.belongsTo(models.package_umroh, {
+        foreignKey: 'id_package',
+        as: 'package_umroh'
+      });
+      order.hasMany(models.jamaah, {
+        foreignKey: 'id_order',
+        as: 'jamaah'
+      });
     }
   }
   order.init({
     id_package: DataTypes.INTEGER,
+    order_id: DataTypes.STRING,
     id_mitra: DataTypes.INTEGER,
     id_user: DataTypes.INTEGER,
     subtotal: DataTypes.INTEGER,
@@ -42,7 +47,7 @@ order.belongsTo(models.package_umroh, {
     sequelize,
     modelName: 'order',
     tableName: 'order',
-     freezeTableName: true
+    freezeTableName: true
   });
 
   return order;
