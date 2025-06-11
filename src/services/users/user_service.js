@@ -12,6 +12,13 @@ module.exports = {
         return { success: false, message: 'Name, email, and password are required' };
       }
 
+  // Cek apakah email sudah digunakan
+    const existing = await models.User.findOne({ where: { email } });
+    if (existing) {
+      await t.rollback();
+      return { success: false, message: 'Email already in use' };
+    }
+
       const hashed = await hashPassword(password);
 
       const user = await models.User.create({

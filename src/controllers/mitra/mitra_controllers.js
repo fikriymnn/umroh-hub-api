@@ -5,6 +5,16 @@ module.exports = {
   async createMitra(req, res) {
     try {
       const newMitra = await mitraService.createMitra(req.body);
+
+      
+    if (!newMitra.success) {
+      return res.status(400).json({
+        status_code: 400,
+        success: false,
+        message: newMitra.message
+      });
+    }
+
       res.status(201).json({
         status_code: 201,
         success: true,

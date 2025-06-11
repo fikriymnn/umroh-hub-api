@@ -11,6 +11,13 @@ const createMitra = async (data) => {
       siuppiu, akta, image_url
     } = data;
 
+      // Cek apakah email sudah digunakan
+    const existing = await models.Mitra.findOne({ where: { email } });
+    if (existing) {
+      await t.rollback();
+      return { success: false, message: 'Email already in use' };
+    }
+
     const hashed = await hashPassword(password);
 
     const newMitra = await models.Mitra.create({

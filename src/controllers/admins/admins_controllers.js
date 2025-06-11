@@ -7,6 +7,17 @@ const { generateToken } = require('../../utils/token');
 async function registerAdmin(req, res) {
   try {
     const { name, email, password } = req.body;
+
+    // Cek apakah email sudah terdaftar
+    const existingAdmin = await Admin.findOne({ where: { email } });
+    if (existingAdmin) {
+      return res.status(400).json({
+        status_code: 400,
+        success: false,
+        message: 'Email already registered'
+      });
+    }
+
     const hashed = await hashPassword(password);
     const admin = await Admin.create({
       name,
@@ -15,12 +26,21 @@ async function registerAdmin(req, res) {
       is_active: true
     });
 
-    res.status(201).json({ message: 'Admin registered', data: admin });
+    res.status(201).json({
+      status_code: 201,
+      success: true,
+      message: 'Admin registered',
+      data: admin
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message, success: false, status_code: 500 });
-
+    res.status(500).json({
+      status_code: 500,
+      success: false,
+      error: err.message
+    });
   }
 }
+
 
 // LOGIN
 async function loginAdmin(req, res) {
