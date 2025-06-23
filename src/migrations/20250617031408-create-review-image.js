@@ -2,18 +2,22 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('package_hotel', {
+    await queryInterface.createTable('review_image', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_package: {
-        type: Sequelize.INTEGER
+      id_review: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'review',
+          key: 'id'
+        }
       },
-      id_hotel: {
-        type: Sequelize.INTEGER
+      image_url: {
+        type: Sequelize.STRING
       },
       is_active: {
         type: Sequelize.BOOLEAN
@@ -29,6 +33,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('package_hotel');
+    await queryInterface.dropTable('review_image');
   }
 };

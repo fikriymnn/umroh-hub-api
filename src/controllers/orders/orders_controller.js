@@ -1,4 +1,4 @@
-const { createOrders, getOrders, getOrdersById, editOrder, deleteOrdersServices, paymentOrder } = require("../../services/orders/orders_service");
+const { createOrders, getOrders, getOrdersById, editOrder, deleteOrdersServices, paymentOrder, getOrdersByIdUser, updateStatusOrder } = require("../../services/orders/orders_service");
 
 const addOrders = async (req, res) => {
     const {
@@ -84,9 +84,40 @@ const paymentOrders = async (req, res) => {
         return res.status(500).json({ status_code: 500, success: false, message: error.message });
     }
 }
+
+const editStatusOrder = async (req, res) => {
+    const {
+        order_status
+    } = req.body;
+    try {
+        const Order = await getOrdersById(req.params.id)
+        if (!Order) {
+            return res.status(404).json({ status_code: 404, success: false, message: 'Order not found' })
+        }
+
+        await updateStatusOrder(req.params.id, { order_status })
+
+        const updated = await getOrdersById(req.params.id);
+        return res.status(200).json({ status_code: 200, success: true, data: updated })
+    } catch (error) {
+        return res.status(500).json({ status_code: 500, success: false, message: error.message })
+    }
+}
 const getAllOrders = async (req, res) => {
     try {
-        const Orders = await getOrders()
+        const Orders = await getOrders(req.query)
+        res.status(200).json({ status_code: 200, success: true, data: Orders })
+    } catch (error) {
+        res.status(500).json({ status_code: 500, success: false, message: error.message })
+    }
+}
+
+const getAllOrdersByUser = async (req, res) => {
+    // const id = req.user.id
+    // const { payment_status, order_status } = req.query
+    // const paym
+    try {
+        const Orders = await getOrdersByIdUser(req.user.id, req.query)
         res.status(200).json({ status_code: 200, success: true, data: Orders })
     } catch (error) {
         res.status(500).json({ status_code: 500, success: false, message: error.message })
@@ -204,6 +235,8 @@ module.exports = {
     getOneOrders,
     editOrders,
     deleteOrders,
-    paymentOrders
+    paymentOrders,
+    getAllOrdersByUser,
+    editStatusOrder
     // nonActiveOrders
 };

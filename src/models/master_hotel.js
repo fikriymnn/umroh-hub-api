@@ -30,8 +30,8 @@ module.exports = (sequelize, DataTypes) => {
     hotel_type: DataTypes.STRING,
     address: DataTypes.STRING,
     room_type: DataTypes.STRING,
-    image_url: DataTypes.STRING
-
+    image_url: DataTypes.STRING,
+    description: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'master_hotel',

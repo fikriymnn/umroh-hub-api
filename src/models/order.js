@@ -2,6 +2,7 @@
 const {
   Model
 } = require('sequelize');
+const review = require('./review');
 
 module.exports = (sequelize, DataTypes) => {
   class order extends Model {
@@ -28,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'id_order',
         as: 'jamaah'
       });
+      order.hasMany(models.review, {
+        foreignKey: 'id_order',
+        // as: 'jamaah'
+      });
     }
   }
   order.init({
@@ -43,7 +48,8 @@ module.exports = (sequelize, DataTypes) => {
     bank: DataTypes.STRING,
     no_rek: DataTypes.STRING,
     transaction_proof_url: DataTypes.STRING,
-    by_name_of: DataTypes.STRING
+    by_name_of: DataTypes.STRING,
+    review_status: DataTypes.BOOLEAN,
   }, {
     sequelize,
     modelName: 'order',

@@ -80,20 +80,31 @@ const paymentOrder = async (order_id, data) => {
         bank,
         no_rek,
         transaction_proof_url,
+        by_name_of
     } = data;
     const t = await sequelize.transaction();
     try {
         const order = await models.order.findOne({ where: { order_id: order_id } })
         if (!order) throw new Error("Order not found");
 
+        const packageUmroh = await models.package_umroh.findByPk(order.id_package)
+        if (!packageUmroh) throw new Error("Order not found");
+
         await models.order.update({
             payment_method,
             bank,
             no_rek,
             transaction_proof_url,
+            by_name_of,
             payment_status: 'paid',
         }, { where: { order_id: order_id }, transaction: t })
 
+        const jamaah = await models.jamaah.count({ where: { id_order: order.id } })
+        const quota_update = packageUmroh.quota - jamaah;
+
+        await models.package_umroh.update({
+            quota_update: quota_update
+        }, { where: { id: order.id_package } })
         await t.commit();
         return order;
     } catch (error) {
@@ -151,8 +162,40 @@ const editOrder = async (id, data) => {
     }
 };
 
-const getOrders = async () => {
+const updateStatusOrder = async (id, data) => {
+    const { order_status } = data;
+    const t = await sequelize.transaction();
+    try {
+        const Order = await models.order.findByPk(id);
+        if (!Order) {
+            throw new Error('Package Umroh not found')
+        }
+
+        await models.order.update({
+            order_status
+        }, {
+            where: { id: id }, transaction: t
+        })
+
+        await t.commit();
+        return Order;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+}
+const getOrders = async (query) => {
+    const filterFrom = {};
+
+    if (query.payment_status) {
+        filterFrom.payment_status = query.payment_status;
+    }
+
+    if (query.order_status) {
+        filterFrom.order_status = query.order_status;
+    }
     return await models.order.findAll({
+        where: filterFrom,
         include: [
             {
                 model: models.jamaah, as: 'jamaah'
@@ -260,6 +303,76 @@ const getOrdersById = async (id) => {
     });
 };
 
+const getOrdersByIdUser = async (id, query) => {
+    const filterFrom = {
+        id_user: id
+    };
+
+    if (query.payment_status) {
+        filterFrom.payment_status = query.payment_status;
+    }
+
+    if (query.order_status) {
+        filterFrom.order_status = query.order_status;
+    }
+
+    console.log("query:", query);
+    console.log("filterFrom:", filterFrom);
+
+    return await models.order.findAll({
+        where: filterFrom,
+        include: [
+            {
+                model: models.jamaah, as: 'jamaah'
+            },
+            {
+                model: models.User, as: 'user'
+            },
+            {
+                model: models.Mitra, as: 'mitra'
+            },
+            {
+                model: models.package_umroh, as: 'package_umroh',
+                include: [
+                    {
+                        model: models.master_type_departure
+                    },
+                    {
+                        model: models.master_category_departure
+                    },
+                    {
+                        model: models.master_location_departure
+                    },
+                    {
+                        model: models.package_hotel,
+                        include: [
+                            {
+                                model: models.master_hotel,
+                                include: [
+                                    {
+                                        model: models.hotel_facilities
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        model: models.package_facilities,
+                    },
+                    {
+                        model: models.package_schedule,
+                        include: [
+                            {
+                                model: models.detail_activity
+                            }
+                        ]
+                    },
+                ]
+            },
+        ]
+    });
+};
+
 const deleteOrdersServices = async (id) => {
     await models.jamaah.destroy({ where: { id_order: id } })
     return await models.order.destroy({ where: { id } });
@@ -270,6 +383,8 @@ module.exports = {
     getOrdersById,
     deleteOrdersServices,
     editOrder,
-    paymentOrder
+    paymentOrder,
+    getOrdersByIdUser,
+    updateStatusOrder
 }
 

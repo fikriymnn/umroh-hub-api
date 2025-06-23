@@ -69,6 +69,14 @@ module.exports = {
       transaction_proof_url: {
         type: Sequelize.STRING
       },
+      by_name_of: {
+        type: Sequelize.STRING,
+        // allowNull: false
+      },
+      review_status: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

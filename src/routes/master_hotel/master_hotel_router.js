@@ -5,6 +5,7 @@ const authenticate = require('../../middlewares/auth');
 
 router.post('/', authenticate(['mitra']), masterHotelController.createHotel);
 router.get('/', authenticate(['mitra']), masterHotelController.getAllHotels);
+router.get('/getHotelMitra', authenticate(['mitra']), masterHotelController.getAllHotelByMitra);
 router.get('/:id', authenticate(['mitra']), masterHotelController.getHotelById);
 router.put('/:id', authenticate(['mitra']), masterHotelController.updateHotel);
 router.patch('/deactivate/:id', authenticate(['mitra']), masterHotelController.deactivateHotel);

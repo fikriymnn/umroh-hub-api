@@ -16,6 +16,7 @@ const createPakcageUmroh = async (data) => {
         quota,
         quota_update,
         price,
+        jamaah_requirements,
         schedules,
         hotel,
         facilities,
@@ -51,12 +52,13 @@ const createPakcageUmroh = async (data) => {
             quota,
             quota_update,
             price,
+            jamaah_requirements,
             isActive: true
         }, { transaction: t });
 
         if (hotel && hotel.length > 0) {
-            for (const { id_hotel, description } of hotel) {
-                await models.package_hotel.create({ id_package: packageUmroh.id, id_hotel, description }, { transaction: t });
+            for (const { id_hotel } of hotel) {
+                await models.package_hotel.create({ id_package: packageUmroh.id, id_hotel }, { transaction: t });
             }
         }
 
@@ -121,7 +123,9 @@ const editPakcageUmroh = async (id, data) => {
         schedules,
         hotel,
         images,
-        facilities
+        facilities,
+        package_status,
+        jamaah_requirements
     } = data;
 
     const t = await sequelize.transaction();
@@ -129,22 +133,22 @@ const editPakcageUmroh = async (id, data) => {
     try {
         const packageUmroh = await models.package_umroh.findByPk(id);
         if (!packageUmroh) {
-            return res.status(404).json({ message: 'Package Umroh not found' })
+            throw new Error('Package Umroh not found')
         }
 
         const typeDeparture = await models.master_type_departure.findByPk(id_type_departure);
         if (!typeDeparture) {
-            return res.status(404).json({ message: 'Type Departure not found' })
+            throw new Error('Type Departure not found')
         }
 
         const categoryDeparture = await models.master_category_departure.findByPk(id_category_departure);
         if (!categoryDeparture) {
-            return res.status(404).json({ message: 'Category Departure not found' })
+            throw new Error('Category Departure not found')
         }
 
         const locationDeparture = await models.master_location_departure.findByPk(id_location_departure);
         if (!locationDeparture) {
-            return res.status(404).json({ message: 'Location Departure not found' })
+            throw new Error('Location Departure not found')
         }
 
         await models.package_umroh.update({
@@ -159,6 +163,8 @@ const editPakcageUmroh = async (id, data) => {
             quota,
             quota_update,
             price,
+            package_status,
+            jamaah_requirements
         }, {
             where: { id: packageUmroh.id }
             , transaction: t
@@ -166,8 +172,8 @@ const editPakcageUmroh = async (id, data) => {
 
         if (hotel && hotel.length > 0) {
             await models.package_hotel.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
-            for (const { id_hotel, description } of hotel) {
-                await models.package_hotel.create({ id_package: packageUmroh.id, id_hotel, description }, { transaction: t });
+            for (const { id_hotel } of hotel) {
+                await models.package_hotel.create({ id_package: packageUmroh.id, id_hotel }, { transaction: t });
             }
         }
 
@@ -229,8 +235,63 @@ const editPakcageUmroh = async (id, data) => {
     }
 }
 
-const getPakcageUmroh = async () => {
+const updateStatusPackageUmroh = async (id, data) => {
+    const { package_status } = data;
+    const t = await sequelize.transaction();
+    try {
+        const packageUmroh = await models.package_umroh.findByPk(id);
+        if (!packageUmroh) {
+            throw new Error('Package Umroh not found')
+        }
+
+        await models.package_umroh.update({
+            package_status
+        }, {
+            where: { id: id }, transaction: t
+        })
+
+        await t.commit();
+        return packageUmroh;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+}
+const getPakcageUmroh = async (query) => {
+    const filterFrom = {};
+
+    if (query.id_category_departure) {
+        filterFrom.id_category_departure = query.id_category_departure;
+    }
+
+    if (query.id_location_departure) {
+        filterFrom.id_location_departure = query.id_location_departure;
+    }
+
+    if (query.id_type_departure) {
+        filterFrom.id_type_departure = query.id_type_departure;
+    }
+
+    if (query.price) {
+        filterFrom.price = query.price;
+    }
+
+    if (query.duration) {
+        filterFrom.duration = query.duration;
+    }
+
+    if (query.date_departure) {
+        filterFrom.date_departure = query.date_departure;
+    }
+
+    const page = parseInt(query.page) || 1;
+    const limit = parseInt(query.limit) || 10;
+    const offset = (page - 1) * limit;
+
     return await models.package_umroh.findAll({
+        where: filterFrom,
+        limit,
+        offset,
         include: [
             {
                 model: models.master_type_departure
@@ -267,6 +328,67 @@ const getPakcageUmroh = async () => {
             },
         ]
     });
+};
+
+const getPakcageUmrohByIdView = async (id) => {
+    const packageUmroh = await models.package_umroh.findOne({
+        where: { id: id },
+        include: [
+            {
+                model: models.Mitra
+            },
+            {
+                model: models.master_type_departure
+            },
+            {
+                model: models.master_category_departure
+            },
+            {
+                model: models.master_location_departure
+            },
+            {
+                model: models.package_hotel,
+                include: [
+                    {
+                        model: models.master_hotel,
+                        include: [
+                            {
+                                model: models.hotel_facilities
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                model: models.package_facilities,
+            },
+            {
+                model: models.package_schedule,
+                include: [
+                    {
+                        model: models.detail_activity
+                    }
+                ]
+            },
+            {
+                model: models.review,
+                include: [
+                    {
+                        model: models.review_image
+                    },
+                    {
+                        model: models.User
+                    }
+                ]
+            }
+        ]
+    });
+
+    if (packageUmroh) {
+        await packageUmroh.increment('view_package');
+    }
+
+    return packageUmroh;
 };
 
 const getPakcageUmrohById = async (id) => {
@@ -309,6 +431,17 @@ const getPakcageUmrohById = async (id) => {
                     }
                 ]
             },
+            {
+                model: models.review,
+                include: [
+                    {
+                        model: models.review_image
+                    },
+                    {
+                        model: models.User
+                    }
+                ]
+            }
         ]
     });
 };
@@ -337,12 +470,94 @@ const nonActivePackageUmrohServices = async (id) => {
     await models.package_umroh.update({ is_active: false }, { where: { id } });
     return await models.package_umroh.findOne({ where: { id } });
 };
+
+
+const getPackageUmrohByMitra = async (id, query) => {
+    const filterFrom = {
+        id_mitra: id
+    };
+
+    if (query.id_category_departure) {
+        filterFrom.id_category_departure = query.id_category_departure;
+    }
+
+    const page = parseInt(query.page) || 1;
+    const limit = parseInt(query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    return await models.package_umroh.findAll({
+        where: filterFrom,
+        limit,
+        offset,
+        include: [
+            {
+                model: models.master_type_departure
+            },
+            {
+                model: models.master_category_departure
+            },
+            {
+                model: models.master_location_departure
+            },
+            {
+                model: models.package_hotel,
+                include: [
+                    {
+                        model: models.master_hotel,
+                        include: [
+                            {
+                                model: models.hotel_facilities
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                model: models.package_facilities,
+            },
+            {
+                model: models.package_schedule,
+                include: [
+                    {
+                        model: models.detail_activity
+                    }
+                ]
+            },
+        ]
+    });
+}
+
+const rejectUmrohPackage = async (id, data) => {
+    const { admin_note } = data;
+    const t = await models.sequelize.transaction();
+    try {
+        const pkg = await models.package_umroh.findByPk(id);
+        if (!pkg) throw new Error('Package Umroh not found');
+
+        await models.package_umroh.update({
+            admin_note,
+            package_status: 'rejected'
+        }, {
+            where: { id: id }, transaction: t
+        })
+        const package = await models.package_umroh.findByPk(id);
+        await t.commit();
+        return package;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+}
 module.exports = {
     createPakcageUmroh,
     editPakcageUmroh,
     getPakcageUmroh,
     getPakcageUmrohById,
     deletePackageUmrohServices,
-    nonActivePackageUmrohServices
+    nonActivePackageUmrohServices,
+    updateStatusPackageUmroh,
+    getPackageUmrohByMitra,
+    rejectUmrohPackage,
+    getPakcageUmrohByIdView
 }
 

@@ -2,12 +2,20 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('jamaah', {
+    await queryInterface.createTable('review', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
+      },
+      id_package: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'package_umroh',
+          key: 'id'
+        },
       },
       id_order: {
         type: Sequelize.INTEGER,
@@ -16,32 +24,23 @@ module.exports = {
           model: 'order',
           key: 'id'
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
       },
-
-      name: {
+      id_user: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'user',
+          key: 'id'
+        },
+      },
+      description: {
         type: Sequelize.STRING
       },
-      email: {
-        type: Sequelize.STRING
+      rating: {
+        type: Sequelize.INTEGER
       },
-      gender: {
-        type: Sequelize.ENUM('male', 'female'),
-        allowNull: false
-      },
-
-      phone_number: {
-        type: Sequelize.STRING
-      },
-      ktp_url: {
-        type: Sequelize.STRING
-      },
-      kk_url: {
-        type: Sequelize.STRING
-      },
-      passport_url: {
-        type: Sequelize.STRING
+      is_active: {
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -54,6 +53,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('jamaah');
+    await queryInterface.dropTable('review');
   }
 };

@@ -49,6 +49,18 @@ module.exports = {
       id_type_departure: {
         type: Sequelize.INTEGER
       },
+      jamaah_requirements: {
+        type: Sequelize.STRING
+      },
+      admin_note: {
+        type: Sequelize.STRING
+      },
+      view_package: {
+        type: Sequelize.INTEGER
+      },
+      package_status: {
+        type: Sequelize.ENUM('active', 'draft', 'checked', 'rejected', 'history')
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
