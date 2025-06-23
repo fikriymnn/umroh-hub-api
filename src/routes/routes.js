@@ -16,4 +16,4 @@ router.use('/admins', require('./admins/admin_routes'));
 router.use('/hotels', require('../routes/master_hotel/master_hotel_router'));
 router.use('/auth', require('./auth/auth_route'));
 
-module.exports = router; ''
+module.exports = router;
