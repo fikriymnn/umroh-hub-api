@@ -1,13 +1,13 @@
-const { master_hotel, hotel_facilities } = require('../../models');
+const { master_hotel, hotel_facilities, general_facilities } = require('../../models');
 const sequelize = require('../../config/db');
 
 module.exports = {
   async createHotel(data) {
     const t = await sequelize.transaction();
     try {
-      const { id_mitra, hotel_name, hotel_type, room_type, address, facilities, image_url, description } = data;
+      const { id_mitra, hotel_name, hotel_type, room_type, address, facilities_general, facilities_hotel, image_url, description } = data;
 
-      if (!id_mitra || !hotel_name || !hotel_type || !room_type || !address || !facilities || !image_url || !description) {
+      if (!id_mitra || !hotel_name || !hotel_type || !room_type || !address || !facilities_general || !facilities_hotel || !image_url || !description) {
         return { success: false, message: 'All fields are required' };
       }
 
@@ -23,9 +23,15 @@ module.exports = {
 
       }, { transaction: t });
 
-      if (facilities && facilities.length > 0) {
-        for (const { description } of facilities) {
+      if (facilities_hotel && facilities_hotel.length > 0) {
+        for (const { description } of facilities_hotel) {
           await hotel_facilities.create({ id_hotel: newHotel.id, description }, { transaction: t });
+        }
+      }
+
+      if (facilities_general && facilities_general.length > 0) {
+        for (const { description } of facilities_general) {
+          await general_facilities.create({ id_hotel: newHotel.id, description }, { transaction: t });
         }
       }
 
@@ -38,18 +44,18 @@ module.exports = {
   },
 
   async getAllHotels() {
-    const hotels = await master_hotel.findAll({ include: [{ model: hotel_facilities }] });
+    const hotels = await master_hotel.findAll({ include: [{ model: hotel_facilities }, { model: general_facilities }] });
     return { success: true, message: 'All hotels retrieved', data: hotels };
   },
 
   async getHotelById(id) {
-    const hotel = await master_hotel.findOne({ where: { id: id }, include: [{ model: hotel_facilities }] });
+    const hotel = await master_hotel.findOne({ where: { id: id }, include: [{ model: hotel_facilities }, { model: general_facilities }] });
     if (!hotel) return { success: false, message: 'Hotel not found' };
     return { success: true, message: 'Hotel found', data: hotel };
   },
 
   async updateHotell(id, data) {
-    const { hotel_name, hotel_type, room_type, address, facilities, image_url, description } = data;
+    const { hotel_name, hotel_type, room_type, address, facilities_general, facilities_hotel, image_url, description } = data;
     const t = await sequelize.transaction();
     try {
       const hotel = await master_hotel.findByPk(id);
@@ -66,10 +72,17 @@ module.exports = {
 
       }, { where: { id: hotel.id }, transaction: t });
 
-      if (facilities && facilities.length > 0) {
+      if (facilities_hotel && facilities_hotel.length > 0) {
         await hotel_facilities.destroy({ where: { id_hotel: hotel.id }, transaction: t });
-        for (const { description } of facilities) {
-          await hotel_facilities.create({ id_hotel: id, description }, { transaction: t });
+        for (const { description } of facilities_hotel) {
+          await hotel_facilities.create({ id_hotel: newHotel.id, description }, { transaction: t });
+        }
+      }
+
+      if (facilities_general && facilities_general.length > 0) {
+        await general_facilities.destroy({ where: { id_hotel: hotel.id }, transaction: t });
+        for (const { description } of facilities_general) {
+          await general_facilities.create({ id_hotel: newHotel.id, description }, { transaction: t });
         }
       }
 
@@ -104,6 +117,9 @@ module.exports = {
         {
           model: hotel_facilities
         },
+        {
+          model: general_facilities
+        }
       ]
     });
   },
@@ -116,6 +132,7 @@ module.exports = {
 
       await hotel.destroy({ transaction: t });
       await hotel_facilities.destroy({ where: { id_hotel: id }, transaction: t })
+      await general_facilities.destroy({ where: { id_hotel: id }, transaction: t })
       await t.commit();
       return { success: true, message: 'Hotel deleted' };
     } catch (error) {

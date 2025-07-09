@@ -1,4 +1,4 @@
-const { createOrders, getOrders, getOrdersById, editOrder, deleteOrdersServices, paymentOrder, getOrdersByIdUser, updateStatusOrder } = require("../../services/orders/orders_service");
+const { createOrders, getOrders, getOrdersById, editOrder, deleteOrdersServices, paymentOrder, getOrdersByIdUser, updateStatusOrder, getOrdersByIdMitra, uploadCompleteDataJamaah, updateStatusDeparture } = require("../../services/orders/orders_service");
 
 const addOrders = async (req, res) => {
     const {
@@ -103,6 +103,25 @@ const editStatusOrder = async (req, res) => {
         return res.status(500).json({ status_code: 500, success: false, message: error.message })
     }
 }
+
+const editStatusDeparture = async (req, res) => {
+    // const {
+    //     order_status
+    // } = req.body;
+    try {
+        const Order = await getOrdersById(req.params.id)
+        if (!Order) {
+            return res.status(404).json({ status_code: 404, success: false, message: 'Order not found' })
+        }
+
+        await updateStatusDeparture(req.params.id)
+
+        const updated = await getOrdersById(req.params.id);
+        return res.status(200).json({ status_code: 200, success: true, data: updated })
+    } catch (error) {
+        return res.status(500).json({ status_code: 500, success: false, message: error.message })
+    }
+}
 const getAllOrders = async (req, res) => {
     try {
         const Orders = await getOrders(req.query)
@@ -118,6 +137,18 @@ const getAllOrdersByUser = async (req, res) => {
     // const paym
     try {
         const Orders = await getOrdersByIdUser(req.user.id, req.query)
+        res.status(200).json({ status_code: 200, success: true, data: Orders })
+    } catch (error) {
+        res.status(500).json({ status_code: 500, success: false, message: error.message })
+    }
+}
+
+const getAllOrdersByMitra = async (req, res) => {
+    // const id = req.user.id
+    // const { payment_status, order_status } = req.query
+    // const paym
+    try {
+        const Orders = await getOrdersByIdMitra(req.user.id, req.query)
         res.status(200).json({ status_code: 200, success: true, data: Orders })
     } catch (error) {
         res.status(500).json({ status_code: 500, success: false, message: error.message })
@@ -229,6 +260,30 @@ const deleteOrders = async (req, res) => {
 //     }
 // }
 
+const upCompleteDataJamaah = async (req, res) => {
+    const { visa_url, passport_url, hotel_ticket, airplane_ticket } = req.body;
+    if (!hotel_ticket
+        || !payment_method
+        || !airplane_ticket
+    ) {
+        return res.status(400).json({
+            status_code: 400,
+            success: false,
+            message: "Incomplete data. Please fill in all required fields."
+        });
+    }
+    try {
+        const Orders = await getOrdersById(req.params.id, req.body)
+        if (!Orders) {
+            res.status(404).json({ status_code: 404, success: false, message: 'Orders not found' })
+        }
+
+        await uploadCompleteDataJamaah(req.params.id, req.body)
+        res.status(200).json({ status_code: 200, success: true, data: Orders })
+    } catch (error) {
+        res.status(500).json({ status_code: 500, success: false, message: error.message })
+    }
+}
 module.exports = {
     addOrders,
     getAllOrders,
@@ -237,6 +292,9 @@ module.exports = {
     deleteOrders,
     paymentOrders,
     getAllOrdersByUser,
-    editStatusOrder
+    editStatusOrder,
+    getAllOrdersByMitra,
+    editStatusDeparture,
+    upCompleteDataJamaah
     // nonActiveOrders
 };

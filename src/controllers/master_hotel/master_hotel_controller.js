@@ -2,7 +2,7 @@ const hotelService = require('../../services/master_hotel/master_hotel_service')
 
 module.exports = {
   async createHotel(req, res) {
-    const { hotel_name, hotel_type, room_type, address, facilities, image_url, description } = req.body;
+    const { hotel_name, hotel_type, room_type, address, facilities_general, facilities_hotel, image_url, description } = req.body;
     const id_mitra = req.user.id;
     try {
       const result = await hotelService.createHotel({
@@ -12,7 +12,8 @@ module.exports = {
         room_type,
         address,
         image_url,
-        facilities,
+        facilities_general,
+        facilities_hotel,
         description
       });
       res.status(201).json(result);
@@ -55,7 +56,7 @@ module.exports = {
     if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ success: false, message: 'Request body cannot be empty' });
     }
-    const { hotel_name, hotel_type, room_type, address, facilities, image_url, description } = req.body;
+    const { hotel_name, hotel_type, room_type, address, facilities_general, facilities_hotel, image_url, description } = req.body;
     try {
       const hotel = await hotelService.getHotelById(req.params.id)
       if (!hotel) {
@@ -69,7 +70,8 @@ module.exports = {
         address: address ?? hotel.address,
         image_url: image_url ?? hotel.image_url,
         description: description ?? hotel.description,
-        facilities,
+        facilities_general,
+        facilities_hotel
       };
 
       const isSame =
@@ -79,7 +81,8 @@ module.exports = {
         hotel.address === obj.address &&
         hotel.image_url === obj.image_url &&
         hotel.description === obj.description &&
-        (!facilities || facilities.length === 0)
+        (!facilities_general || facilities_general.length === 0) &&
+        (!facilities_hotel || facilities_hotel.length === 0)
 
       if (isSame) {
         return res.status(200).json({

@@ -61,6 +61,18 @@ module.exports = {
       package_status: {
         type: Sequelize.ENUM('active', 'draft', 'checked', 'rejected', 'history')
       },
+      airplane: {
+        type: Sequelize.STRING
+      },
+      date_arrival: {
+        type: Sequelize.DATE
+      },
+      rating: {
+        type: Sequelize.INTEGER
+      },
+      // transportation: {
+      //   type: Sequelize.STRING
+      // },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

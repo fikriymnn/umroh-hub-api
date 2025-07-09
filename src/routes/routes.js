@@ -15,5 +15,9 @@ router.use('/mitras', require('./mitra/mitra_routes'));
 router.use('/admins', require('./admins/admin_routes'));
 router.use('/hotels', require('../routes/master_hotel/master_hotel_router'));
 router.use('/auth', require('./auth/auth_route'));
+router.use('/post', require('./forum/post_route'));
+router.use('/comment', require('./forum/comment_route'));
+router.use('/reply', require('./forum/reply_route'));
+router.use('/react', require('./forum/reaction_route'));
 
 module.exports = router;

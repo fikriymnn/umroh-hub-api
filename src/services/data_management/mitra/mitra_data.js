@@ -71,116 +71,80 @@ const getYearlyStatistics = async (id_mitra, year) => {
     const statisticsByMonth = [];
 
     try {
+        const yearStart = new Date(year, 0, 1);
+        const yearEnd = new Date(year, 11, 31, 23, 59, 59);
+
+        const packagePlusYears = await models.package_umroh.count({
+            where: {
+                createdAt: {
+                    [Op.between]: [yearStart, yearEnd],
+                },
+                id_mitra,
+                package_status: 'active'
+            },
+            include: [{ model: models.master_category_departure, where: { category_name: 'Plus' } }],
+            raw: true,
+        });
+
+        const packageRegularYears = await models.package_umroh.count({
+            where: {
+                createdAt: {
+                    [Op.between]: [yearStart, yearEnd],
+                },
+                id_mitra,
+                package_status: 'active'
+            },
+            include: [{ model: models.master_category_departure, where: { category_name: 'Regular' } }],
+            raw: true,
+        });
+
         for (let month = 1; month <= 12; month++) {
             const startDate = new Date(year, month - 1, 1);
-            const endDate = new Date(year, month, 0);
+            const endDate = new Date(year, month, 0, 23, 59, 59);
 
-            const fetchTransaksiData = async (startDate, endDate) => {
-                const transaksi = await models.order.findAll({
-                    attributes: [
-                        [sequelize.fn('COUNT', sequelize.col('id')), 'totalTransactions'],
-                        [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalSubTotal'],
-                    ],
-                    where: {
-                        createdAt: {
-                            [Op.between]: [startDate, endDate],
-                        },
-                        id_mitra,
-                        payment_status: 'paid'
+            const transaksi = await models.order.findAll({
+                attributes: [
+                    [sequelize.fn('COUNT', sequelize.col('id')), 'totalTransactions'],
+                    [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalSubTotal'],
+                ],
+                where: {
+                    createdAt: {
+                        [Op.between]: [startDate, endDate],
                     },
-                    raw: true,
-                });
+                    id_mitra,
+                    payment_status: 'paid'
+                },
+                raw: true,
+            });
 
-                // const packageRegular = await models.order.count({
-                //     include: [{
-                //         model: models.package_umroh, as: 'package_umroh', where: { id_mitra }, include: [
-                //             { model: models.master_category_departure, where: { category_name: "Regular" } }
-                //         ]
-                //     }],
-                //     where: { createdAt: { [Op.between]: [startDate, endDate] } }
-                // });
+            const totalPackage = await models.package_umroh.count({
+                where: { id_mitra, package_status: 'active' }
+            });
 
-                // const packagePlus = await models.order.count({
-                //     include: [{
-                //         model: models.package_umroh, as: 'package_umroh', where: { id_mitra }, iclude: [
-                //             { model: models.master_category_departure, where: { category_name: "Plus" } }
-                //         ]
-                //     }],
-                //     where: { createdAt: { [Op.between]: [startDate, endDate] } }
-                // });
+            const totalPackagePlus = await models.package_umroh.count({
+                where: { id_mitra, package_status: 'active' },
+                include: [{ model: models.master_category_departure, where: { category_name: 'Plus' } }]
+            });
 
-                // const totalPackageRegular = await models.order.sum('subtotal', {
-                //     where: {
-                //         createdAt: { [Op.between]: [startDate, endDate] },
-                //         id_mitra,
-                //         payment_status: 'paid'
-                //     },
-                //     include: {
-                //         model: models.package_umroh,
-                //         as: 'package_umroh',
-                //         where: { id_mitra },
-                //         include: [
-                //             {
-                //                 model: models.master_category_departure,
-                //                 where: { category_name: "Regular" }
-                //             }
-                //         ]
-                //     }
-                // });
-
-                // const totalPackagePlus = await models.order.sum('subtotal', {
-                //     where: {
-                //         createdAt: { [Op.between]: [startDate, endDate] },
-                //         id_mitra,
-                //         payment_status: 'paid'
-                //     },
-                //     include: {
-                //         model: models.package_umroh,
-                //         as: 'package_umroh',
-                //         where: { id_mitra },
-                //         include: [
-                //             {
-                //                 model: models.master_category_departure,
-                //                 where: { category_name: "Plus" }
-                //             }
-                //         ]
-                //     }
-                // });
-
-                const totalPackage = await models.package_umroh.count({
-                    where: { id_mitra, package_status: 'active' }
-                })
-
-                const totalPackagePlus = await models.package_umroh.count({
-                    where: { id_mitra, package_status: 'active' },
-                    include: [{ model: models.master_category_departure, where: { category_name: 'Plus' } }]
-                })
-
-                const totalPackageRegular = await models.package_umroh.count({
-                    where: { id_mitra, package_status: 'active' },
-                    include: [{ model: models.master_category_departure, where: { category_name: 'Regular' } }]
-                })
-                return {
-                    totalTransactions: transaksi[0]?.totalTransactions || 0,
-                    totalSubTotal: transaksi[0]?.totalSubTotal || 0,
-                    // packagePlus: packagePlus || 0,
-                    // packageRegular: packageRegular || 0,
-                    totalPackage: totalPackage || 0,
-                    totalPackagePlus: totalPackagePlus || 0,
-                    totalPackageRegular: totalPackageRegular || 0,
-                };
-            };
-
-            const currentMonthData = await fetchTransaksiData(startDate, endDate);
+            const totalPackageRegular = await models.package_umroh.count({
+                where: { id_mitra, package_status: 'active' },
+                include: [{ model: models.master_category_departure, where: { category_name: 'Regular' } }]
+            });
 
             statisticsByMonth.push({
                 month,
-                ...currentMonthData
+                totalTransactions: transaksi[0]?.totalTransactions || 0,
+                totalSubTotal: transaksi[0]?.totalSubTotal || 0,
+                totalPackage,
+                totalPackagePlus,
+                totalPackageRegular
             });
         }
 
         return {
             year,
+            packagePlusYears,
+            packageRegularYears,
             monthlyStatistics: statisticsByMonth,
         };
 
@@ -189,6 +153,8 @@ const getYearlyStatistics = async (id_mitra, year) => {
         throw new Error('Gagal mengambil data statistik tahunan');
     }
 };
+
+
 
 module.exports = {
     dataDashboardMitra,

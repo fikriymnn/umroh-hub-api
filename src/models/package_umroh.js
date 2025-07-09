@@ -37,6 +37,9 @@ module.exports = (sequelize, DataTypes) => {
       package_umroh.hasMany(models.review, {
         foreignKey: 'id_package',
       });
+      package_umroh.hasMany(models.package_transportation, {
+        foreignKey: 'id_package',
+      });
     }
   }
 
@@ -57,6 +60,10 @@ module.exports = (sequelize, DataTypes) => {
     jamaah_requirements: DataTypes.STRING,
     admin_note: DataTypes.STRING,
     view_package: DataTypes.INTEGER,
+    rating: DataTypes.INTEGER,
+    date_arrival: DataTypes.DATE,
+    // transportation: DataTypes.STRING,
+    airplane: DataTypes.STRING,
     package_status: DataTypes.ENUM('active', 'draft', 'checked', 'rejected', 'history')
   }, {
     sequelize,

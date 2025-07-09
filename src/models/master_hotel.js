@@ -16,6 +16,9 @@ module.exports = (sequelize, DataTypes) => {
       master_hotel.hasMany(models.hotel_facilities, {
         foreignKey: 'id_hotel',
       });
+      master_hotel.hasMany(models.general_facilities, {
+        foreignKey: 'id_hotel',
+      });
     }
   }
   master_hotel.init({

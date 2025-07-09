@@ -13,6 +13,8 @@ const addPackageUmroh = async (req, res) => {
         quota,
         jamaah_requirements,
         // quota_update,
+        airplane,
+        transportation,
         price,
         schedules,
         hotel,
@@ -31,6 +33,8 @@ const addPackageUmroh = async (req, res) => {
         || !quota
         || !jamaah_requirements
         // || !quota_update
+        || !airplane
+        || !transportation
         || !price
         || !schedules
         || !hotel
@@ -58,6 +62,8 @@ const addPackageUmroh = async (req, res) => {
             quota_update: quota,
             price,
             jamaah_requirements,
+            airplane,
+            transportation,
             schedules,
             hotel,
             facilities,
@@ -116,7 +122,10 @@ const editPackageUmroh = async (req, res) => {
         duration,
         quota,
         price,
+        jamaah_requirements,
         schedules,
+        airplane,
+        transportation,
         hotel,
         facilities,
         images,
@@ -140,6 +149,9 @@ const editPackageUmroh = async (req, res) => {
             quota: quota ?? packageUmroh.quota,
             price: price ?? packageUmroh.price,
             package_status: package_status ?? packageUmroh.package_status,
+            jamaah_requirements: jamaah_requirements ?? packageUmroh.jamaah_requirements,
+            airplane: airplane ?? packageUmroh.airplane,
+            transportation,
             hotel,
             facilities,
             schedules,
@@ -158,6 +170,9 @@ const editPackageUmroh = async (req, res) => {
             packageUmroh.quota === obj.quota &&
             packageUmroh.price === obj.price &&
             packageUmroh.package_status == obj.package_status &&
+            packageUmroh.airplane == obj.airplane &&
+            packageUmroh.jamaah_requirements == obj.jamaah_requirements &&
+            (!transportation || transportation.length === 0) &&
             (!hotel || hotel.length === 0) &&
             (!facilities || facilities.length === 0) &&
             (!images || images.length === 0) &&

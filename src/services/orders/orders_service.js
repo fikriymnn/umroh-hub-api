@@ -1,6 +1,7 @@
-const { where } = require("sequelize");
+// const { where } = require("sequelize");
 const models = require('../../models');
 const sequelize = require("../../config/db");
+// const client = require("../../../waasap/client")
 
 const createOrders = async (data) => {
     const {
@@ -57,8 +58,8 @@ const createOrders = async (data) => {
         await models.order.update({ order_id: orderCode }, { where: { id: order.id }, transaction: t });
 
         if (jamaah && jamaah.length > 0) {
-            for (const { name, email, gender, phone_number } of jamaah) {
-                await models.jamaah.create({ id_order: order.id, name, email, gender, phone_number }, { transaction: t });
+            for (const { name, email, gender, phone_number, visa_url, passport_url } of jamaah) {
+                await models.jamaah.create({ id_order: order.id, name, email, gender, phone_number, visa_url, passport_url }, { transaction: t });
             }
 
         }
@@ -105,6 +106,7 @@ const paymentOrder = async (order_id, data) => {
         await models.package_umroh.update({
             quota_update: quota_update
         }, { where: { id: order.id_package } })
+
         await t.commit();
         return order;
     } catch (error) {
@@ -150,8 +152,8 @@ const editOrder = async (id, data) => {
 
         if (jamaah && jamaah.length > 0) {
             await models.jamaah.destroy({ where: { id_order: orders.id }, transaction: t });
-            for (const { name, email, gender, phone_number } of jamaah) {
-                await models.jamaah.create({ id_order: orders.id, name, email, gender, phone_number }, { transaction: t });
+            for (const { name, email, gender, phone_number, visa_url, passport_url } of jamaah) {
+                await models.jamaah.create({ id_order: orders.id, name, email, gender, phone_number, visa_url, passport_url }, { transaction: t });
             }
         }
         await t.commit();
@@ -173,6 +175,54 @@ const updateStatusOrder = async (id, data) => {
 
         await models.order.update({
             order_status
+        }, {
+            where: { id: id }, transaction: t
+        })
+
+        await t.commit();
+        return Order;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+}
+
+const uploadCompleteDataJamaah = async (id, data) => {
+    const { visa_url, passport_url, hotel_ticket, airplane_ticket } = data;
+    const t = await sequelize.transaction();
+    try {
+        const Jamaah = await models.jamaah.findByPk(id);
+        if (!Jamaah) throw new Error('Jamaah Umroh not found');
+
+        await models.jamaah.update({
+            visa_url: visa_url ?? Jamaah.visa_url,
+            passport_url: passport_url ?? Jamaah.passport_url,
+            hotel_ticket,
+            airplane_ticket
+        }, {
+            where: { id },
+            transaction: t
+        });
+
+        await t.commit();
+        return Jamaah;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+}
+
+const updateStatusDeparture = async (id) => {
+    // const { departure_status } = data;
+    const t = await sequelize.transaction();
+    try {
+        const Order = await models.order.findByPk(id);
+        if (!Order) {
+            throw new Error('Package Umroh not found')
+        }
+
+        await models.order.update({
+            departure_status: true
         }, {
             where: { id: id }, transaction: t
         })
@@ -274,6 +324,84 @@ const getOrdersById = async (id) => {
                         model: models.master_location_departure
                     },
                     {
+                        model: models.package_transportation
+                    },
+                    {
+                        model: models.package_hotel,
+                        include: [
+                            {
+                                model: models.master_hotel,
+                                include: [
+                                    {
+                                        model: models.hotel_facilities
+                                    },
+                                    {
+                                        model: models.general_facilities
+                                    },
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        model: models.package_facilities,
+                    },
+                    {
+                        model: models.package_schedule,
+                        include: [
+                            {
+                                model: models.detail_activity
+                            }
+                        ]
+                    },
+                ]
+            },
+        ]
+    });
+};
+
+const getOrdersByIdMitra = async (id, query) => {
+    const filterFrom = {
+        id_mitra: id,
+        order_status: 'confirmed',
+        payment_status: 'paid'
+    };
+
+    if (query.payment_status) {
+        filterFrom.payment_status = query.payment_status;
+    }
+
+    // if (query.order_status) {
+    //     filterFrom.order_status = query.order_status;
+    // }
+
+    console.log("query:", query);
+    console.log("filterFrom:", filterFrom);
+
+    return await models.order.findAll({
+        where: filterFrom,
+        include: [
+            {
+                model: models.jamaah, as: 'jamaah'
+            },
+            {
+                model: models.User, as: 'user'
+            },
+            {
+                model: models.Mitra, as: 'mitra'
+            },
+            {
+                model: models.package_umroh, as: 'package_umroh',
+                include: [
+                    {
+                        model: models.master_type_departure
+                    },
+                    {
+                        model: models.master_category_departure
+                    },
+                    {
+                        model: models.master_location_departure
+                    },
+                    {
                         model: models.package_hotel,
                         include: [
                             {
@@ -302,7 +430,6 @@ const getOrdersById = async (id) => {
         ]
     });
 };
-
 const getOrdersByIdUser = async (id, query) => {
     const filterFrom = {
         id_user: id
@@ -385,6 +512,9 @@ module.exports = {
     editOrder,
     paymentOrder,
     getOrdersByIdUser,
-    updateStatusOrder
+    updateStatusOrder,
+    getOrdersByIdMitra,
+    updateStatusDeparture,
+    uploadCompleteDataJamaah
 }
 

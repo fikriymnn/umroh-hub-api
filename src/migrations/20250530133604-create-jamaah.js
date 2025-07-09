@@ -43,6 +43,15 @@ module.exports = {
       passport_url: {
         type: Sequelize.STRING
       },
+      visa_url: {
+        type: Sequelize.STRING
+      },
+      hotel_ticket: {
+        type: Sequelize.STRING
+      },
+      airplane_ticket: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

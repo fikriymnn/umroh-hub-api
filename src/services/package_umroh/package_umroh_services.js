@@ -1,4 +1,4 @@
-const { where } = require("sequelize");
+const { where, Op } = require("sequelize");
 const models = require('../../models');
 const sequelize = require("../../config/db");
 
@@ -17,6 +17,8 @@ const createPakcageUmroh = async (data) => {
         quota_update,
         price,
         jamaah_requirements,
+        airplane,
+        transportation,
         schedules,
         hotel,
         facilities,
@@ -52,7 +54,11 @@ const createPakcageUmroh = async (data) => {
             quota,
             quota_update,
             price,
+            airplane,
+            // transportation,
             jamaah_requirements,
+            rating: 0,
+            // date_arrival: null,
             isActive: true
         }, { transaction: t });
 
@@ -65,6 +71,12 @@ const createPakcageUmroh = async (data) => {
         if (facilities && facilities.length > 0) {
             for (const { description } of facilities) {
                 await models.package_facilities.create({ id_package: packageUmroh.id, description }, { transaction: t });
+            }
+        }
+
+        if (transportation && transportation.length > 0) {
+            for (const { description } of transportation) {
+                await models.package_transportation.create({ id_package: packageUmroh.id, description }, { transaction: t });
             }
         }
 
@@ -98,6 +110,10 @@ const createPakcageUmroh = async (data) => {
                 }, { transaction: t });
             }
         }
+
+        // await models.package_umroh.update({
+        //     date_arrival: 
+        // })
         await t.commit();
         return packageUmroh;
     } catch (error) {
@@ -125,7 +141,10 @@ const editPakcageUmroh = async (id, data) => {
         images,
         facilities,
         package_status,
-        jamaah_requirements
+        jamaah_requirements,
+        airplane,
+        transportation,
+        // jamaah_requirements,
     } = data;
 
     const t = await sequelize.transaction();
@@ -164,7 +183,10 @@ const editPakcageUmroh = async (id, data) => {
             quota_update,
             price,
             package_status,
-            jamaah_requirements
+            jamaah_requirements,
+            airplane,
+            // transportation,
+            // jamaah_requirements,
         }, {
             where: { id: packageUmroh.id }
             , transaction: t
@@ -181,6 +203,13 @@ const editPakcageUmroh = async (id, data) => {
             await models.package_facilities.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
             for (const { description } of facilities) {
                 await models.package_facilities.create({ id_package: packageUmroh.id, description }, { transaction: t });
+            }
+        }
+
+        if (transportation && transportation.length > 0) {
+            await models.package_transportation.destroy({ where: { id_package: packageUmroh.id }, transaction: t });
+            for (const { description } of transportation) {
+                await models.package_transportation.create({ id_package: packageUmroh.id, description }, { transaction: t });
             }
         }
 
@@ -281,7 +310,22 @@ const getPakcageUmroh = async (query) => {
     }
 
     if (query.date_departure) {
-        filterFrom.date_departure = query.date_departure;
+        const start = new Date(query.date_departure);
+        start.setUTCHours(0, 0, 0, 0); // fix jam ke 00:00 UTC
+
+        const end = new Date(start);
+        end.setUTCDate(end.getUTCDate() + 1); // tambah 1 hari
+
+        console.log('📅 Start:', start.toISOString());
+        console.log('📅 End:', end.toISOString());
+        console.log(query.date_departure);
+        console.log(query);
+
+
+        filterFrom.date_departure = {
+            [Op.gte]: start,
+            [Op.lt]: end
+        };
     }
 
     const page = parseInt(query.page) || 1;
@@ -392,7 +436,7 @@ const getPakcageUmrohByIdView = async (id) => {
 };
 
 const getPakcageUmrohById = async (id) => {
-    return await models.package_umroh.findOne({
+    const detailPackage = await models.package_umroh.findOne({
         where: { id: id },
         include: [
             {
@@ -444,6 +488,37 @@ const getPakcageUmrohById = async (id) => {
             }
         ]
     });
+    const totalJamaahFemale = await models.order.count({
+        where: { id_package: id },
+        include: [{ model: models.jamaah, as: 'jamaah', where: { gender: "female" } }]
+    })
+
+    const totalJamaahMale = await models.order.count({
+        where: { id_package: id },
+        include: [{ model: models.jamaah, as: 'jamaah', gender: "male" }]
+    })
+
+    const totalOrder = await models.order.count({
+        where: { id_package: id },
+        // include: [{ model: models.jamaah, as: 'jamaah', gender: "male" }]
+    })
+
+    const totalJamaah = totalJamaahFemale + totalJamaahMale
+
+    const detailJamaah = await models.order.findAll({
+        attributes: ['id'],
+        where: { id_package: id },
+        include: [{ model: models.jamaah, as: 'jamaah' }]
+    })
+
+    return {
+        detailPackage,
+        detailJamaah,
+        totalJamaahFemale,
+        totalJamaahMale,
+        totalJamaah,
+        totalOrder
+    }
 };
 
 const deletePackageUmrohServices = async (id) => {

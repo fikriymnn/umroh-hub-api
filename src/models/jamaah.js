@@ -20,7 +20,10 @@ module.exports = (sequelize, DataTypes) => {
     phone_number: DataTypes.STRING,
     ktp_url: DataTypes.STRING,
     kk_url: DataTypes.STRING,
-    passport_url: DataTypes.STRING
+    passport_url: DataTypes.STRING,
+    visa_url: DataTypes.STRING,
+    airplane_ticket: DataTypes.STRING,
+    hotel_ticket: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'jamaah',
