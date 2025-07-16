@@ -1,26 +1,25 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  class Notification extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+  class notification extends Model {
     static associate(models) {
-      // define association here
+      notification.belongsTo(models.User, { foreignKey: 'userId' });
     }
   }
-  Notification.init({
+
+  notification.init({
     userId: DataTypes.INTEGER,
-    type: DataTypes.STRING,
+    type: DataTypes.STRING,         // contoh: 'payment', 'approval', dsb
     message: DataTypes.STRING,
-    is_read: DataTypes.BOOLEAN
+    is_read: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   }, {
     sequelize,
-    modelName: 'Notification',
+    modelName: 'notification',
   });
-  return Notification;
+
+  return notification;
 };

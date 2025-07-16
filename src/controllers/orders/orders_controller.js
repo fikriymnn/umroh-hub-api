@@ -1,5 +1,6 @@
 const { createOrders,getOrderWithUserByOrderId, getOrders, getOrdersById, editOrder, deleteOrdersServices, paymentOrder, getOrdersByIdUser, updateStatusOrder, getOrdersByIdMitra, uploadCompleteDataJamaah, updateStatusDeparture } = require("../../services/orders/orders_service");
-const { sendEmail } = require('../../services/email/email_services');
+const { sendEmail } = require('../../services/notifications/email_services');
+const   notificationService  = require('../../services/notifications/notification_service')
 const addOrders = async (req, res) => {
     const {
         // id_user,
@@ -66,20 +67,30 @@ const paymentOrders = async (req, res) => {
 
     // Ambil data order + user
     const orderData = await getOrderWithUserByOrderId(order_id);
-    const userEmail = orderData?.user?.email || 'default@example.com';
-    const userName = orderData?.user?.name || 'Pelanggan';
+    const user = orderData?.user;
+
+    if (!user) {
+      throw new Error('User tidak ditemukan untuk order ini.');
+    }
 
     // Kirim email
     await sendEmail(
-      userEmail,
+      user.email,
       'Pembayaran Diterima',
-      `Halo ${userName},\n\nPembayaran kamu untuk pesanan #${order_id} telah berhasil dikonfirmasi.\n\nTerima kasih telah berbelanja!`
+      `Halo ${user.name},\n\nPembayaran kamu untuk pesanan #${order_id} telah berhasil dikonfirmasi.\n\nTerima kasih telah berbelanja!`
     );
+
+    // ✅ Simpan Notifikasi
+    await notificationService.saveNotification({
+      userId: user.id,
+      type: 'payment',
+      message: `Pembayaran kamu untuk pesanan #${order_id} telah berhasil dikonfirmasi.`
+    });
 
     return res.status(200).json({
       status_code: 200,
       success: true,
-      message: 'Payment order successful, email sent.',
+      message: 'Payment order successful, email sent, and notification saved.',
     });
 
   } catch (error) {

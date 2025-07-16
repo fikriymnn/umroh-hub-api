@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.reaction, { foreignKey: 'user_id' });
       User.hasMany(models.review, { foreignKey: 'id_user' });
       User.hasMany(models.order, { foreignKey: 'id_user', as: 'orders' });
+      User.hasMany(models.notification, { foreignKey: 'userId' });
     }
   }
 
