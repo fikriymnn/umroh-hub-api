@@ -1,5 +1,6 @@
 // const { where } = require("sequelize");
 const models = require('../../models');
+const { order, User } = require('../../models');
 const sequelize = require("../../config/db");
 // const client = require("../../../waasap/client")
 
@@ -305,9 +306,11 @@ const getOrdersById = async (id) => {
             {
                 model: models.jamaah, as: 'jamaah'
             },
-            {
-                model: models.User, as: 'user'
-            },
+             {
+        model: models.User,
+        as: 'user',
+        attributes: ['id', 'email', 'name']
+      },
             {
                 model: models.Mitra, as: 'mitra'
             },
@@ -430,6 +433,26 @@ const getOrdersByIdMitra = async (id, query) => {
         ]
     });
 };
+
+
+const getOrderWithUserByOrderId = async (orderId) => {
+  const data = await order.findOne({
+    where: { order_id: orderId },
+    include: [
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name', 'email'],
+      },
+    ],
+  });
+
+  if (!data) {
+    throw new Error(`Order dengan order_id "${orderId}" tidak ditemukan.`);
+  }
+
+  return data;
+};
 const getOrdersByIdUser = async (id, query) => {
     const filterFrom = {
         id_user: id
@@ -515,6 +538,7 @@ module.exports = {
     updateStatusOrder,
     getOrdersByIdMitra,
     updateStatusDeparture,
-    uploadCompleteDataJamaah
+    uploadCompleteDataJamaah,
+    getOrderWithUserByOrderId
 }
 

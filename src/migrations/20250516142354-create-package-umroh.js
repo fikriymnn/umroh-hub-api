@@ -2,7 +2,6 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-
     await queryInterface.createTable('package_umroh', {
       id: {
         allowNull: false,
@@ -70,9 +69,6 @@ module.exports = {
       rating: {
         type: Sequelize.INTEGER
       },
-      // transportation: {
-      //   type: Sequelize.STRING
-      // },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -82,9 +78,13 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-
   },
+
   async down(queryInterface, Sequelize) {
+    // Drop table first
     await queryInterface.dropTable('package_umroh');
+
+    // Optional: Hapus ENUM agar bisa migrasi ulang tanpa error
+    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_package_umroh_package_status";');
   }
 };

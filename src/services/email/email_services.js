@@ -4,20 +4,12 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'diasazril223@gmail.com',
-    pass: 'jant dolo vxcx yedv'
+    pass: 'jkrl hnyf ljan ndjk'
   }
 });
 
-const sendEmail = async (to, subject, text) => {
-  const mailOptions = {
-    from: 'diasazril223@gmail.com',
-    to,
-    subject,
-    text
-  };
-
-  return transporter.sendMail(mailOptions);
+const sendEmail = (to, subject, text) => {
+  return transporter.sendMail({ from: 'diasazril223@gmail.com', to, subject, text });
 };
 
 module.exports = { sendEmail };
-

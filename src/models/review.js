@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       review.hasMany(models.review_image, {
         foreignKey: 'id_review',
-        // as: 'images'
+       
       });
     }
   }

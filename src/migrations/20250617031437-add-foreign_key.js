@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.addConstraint('reviews', {
+    await queryInterface.addConstraint('review', {
       fields: ['id_package'],
       type: 'foreign key',
       name: 'fk_packageumroh_review',
@@ -14,7 +14,7 @@ module.exports = {
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     });
-    await queryInterface.addConstraint('reviews', {
+    await queryInterface.addConstraint('review', {
       fields: ['id_order'],
       type: 'foreign key',
       name: 'fk_order',
@@ -25,7 +25,7 @@ module.exports = {
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     });
-    await queryInterface.addConstraint('reviews', {
+    await queryInterface.addConstraint('review', {
       fields: ['id_user'],
       type: 'foreign key',
       name: 'fk_user',
@@ -41,22 +41,22 @@ module.exports = {
       type: 'foreign key',
       name: 'fk_review',
       references: {
-        table: 'reviews',
+        table: 'review',
         field: 'id',
       },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     });
-    await queryInterface.renameTable('reviews', 'reviews');
+    await queryInterface.renameTable('review', 'review');
     await queryInterface.renameTable('review_images', 'review_image');
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeConstraint('reviews', 'fk_packageumroh_review');
-    await queryInterface.removeConstraint('reviews', 'fk_order');
-    await queryInterface.removeConstraint('reviews', 'fk_user');
+    await queryInterface.removeConstraint('review', 'fk_packageumroh_review');
+    await queryInterface.removeConstraint('review', 'fk_order');
+    await queryInterface.removeConstraint('review', 'fk_user');
     await queryInterface.removeConstraint('review_images', 'fk_review');
-    await queryInterface.renameTable('reviews', 'reviews');
+    await queryInterface.renameTable('review', 'review');
     await queryInterface.renameTable('review_image', 'review_images');
   }
 };

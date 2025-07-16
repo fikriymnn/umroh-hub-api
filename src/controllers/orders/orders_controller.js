@@ -1,5 +1,5 @@
-const { createOrders, getOrders, getOrdersById, editOrder, deleteOrdersServices, paymentOrder, getOrdersByIdUser, updateStatusOrder, getOrdersByIdMitra, uploadCompleteDataJamaah, updateStatusDeparture } = require("../../services/orders/orders_service");
-
+const { createOrders,getOrderWithUserByOrderId, getOrders, getOrdersById, editOrder, deleteOrdersServices, paymentOrder, getOrdersByIdUser, updateStatusOrder, getOrdersByIdMitra, uploadCompleteDataJamaah, updateStatusDeparture } = require("../../services/orders/orders_service");
+const { sendEmail } = require('../../services/email/email_services');
 const addOrders = async (req, res) => {
     const {
         // id_user,
@@ -42,48 +42,54 @@ const addOrders = async (req, res) => {
         return res.status(500).json({ status_code: 500, success: false, message: error.message });
     }
 };
-
 const paymentOrders = async (req, res) => {
-    // if (!req.body) {
-    //     return res.status(400).json({
-    //         status_code: 400,
-    //         success: false,
-    //         message: "Missing request body"
-    //     });
-    // }
-    const {
-        payment_method,
-        bank,
-        no_rek,
-        transaction_proof_url,
-    } = req.body;
-    // console.log(req.body);
+  const {
+    payment_method,
+    bank,
+    no_rek,
+    transaction_proof_url,
+  } = req.body;
 
-    const { order_id } = req.params
-    if (!order_id
-        || !payment_method
-        || !bank
-        || !no_rek
-        || !transaction_proof_url
-    ) {
-        return res.status(400).json({
-            status_code: 400,
-            success: false,
-            message: "Incomplete data. Please fill in all required fields."
-        });
-    }
-    try {
-        // const order = await m()
-        // if (!order) {
-        //     return res.status(404).json({ status_code: 404, success: false, message: 'Order not found' })
-        // }
-        await paymentOrder(order_id, req.body)
+  const { order_id } = req.params;
 
-        return res.status(200).json({ status_code: 200, success: true, message: 'Payment order successfully' });
-    } catch (error) {
-        return res.status(500).json({ status_code: 500, success: false, message: error.message });
-    }
-}
+  if (!order_id || !payment_method || !bank || !no_rek || !transaction_proof_url) {
+    return res.status(400).json({
+      status_code: 400,
+      success: false,
+      message: "Incomplete data. Please fill in all required fields."
+    });
+  }
+
+  try {
+    // Proses pembayaran (asumsikan ini service kamu)
+    await paymentOrder(order_id, req.body);
+
+    // Ambil data order + user
+    const orderData = await getOrderWithUserByOrderId(order_id);
+    const userEmail = orderData?.user?.email || 'default@example.com';
+    const userName = orderData?.user?.name || 'Pelanggan';
+
+    // Kirim email
+    await sendEmail(
+      userEmail,
+      'Pembayaran Diterima',
+      `Halo ${userName},\n\nPembayaran kamu untuk pesanan #${order_id} telah berhasil dikonfirmasi.\n\nTerima kasih telah berbelanja!`
+    );
+
+    return res.status(200).json({
+      status_code: 200,
+      success: true,
+      message: 'Payment order successful, email sent.',
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status_code: 500,
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 const editStatusOrder = async (req, res) => {
     const {
@@ -158,10 +164,12 @@ const getAllOrdersByMitra = async (req, res) => {
 const getOneOrders = async (req, res) => {
     try {
         const Orders = await getOrdersById(req.params.id)
+        
         if (!Orders) {
             return res.status(404).json({ status_code: 404, success: false, message: 'Order not found' })
         }
         return res.status(200).json({ status_code: 200, success: true, data: Orders })
+        console.log(JSON.stringify(orderData, null, 2));
     } catch (error) {
         return res.status(500).json({ status_code: 500, success: false, message: error.message })
     }
