@@ -80,7 +80,7 @@ const paymentOrders = async (req, res) => {
       `Halo ${user.name},\n\nPembayaran kamu untuk pesanan #${order_id} telah berhasil dikonfirmasi.\n\nTerima kasih telah berbelanja!`
     );
 
-    // ✅ Simpan Notifikasi
+    //  Simpan Notifikasi
     await notificationService.saveNotification({
       userId: user.id,
       type: 'payment',
@@ -101,44 +101,116 @@ const paymentOrders = async (req, res) => {
     });
   }
 };
-
 const editStatusOrder = async (req, res) => {
-    const {
-        order_status
-    } = req.body;
-    try {
-        const Order = await getOrdersById(req.params.id)
-        if (!Order) {
-            return res.status(404).json({ status_code: 404, success: false, message: 'Order not found' })
-        }
+  const { order_status } = req.body;
 
-        await updateStatusOrder(req.params.id, { order_status })
+  try {
+    const Order = await getOrdersById(req.params.id);
 
-        const updated = await getOrdersById(req.params.id);
-        return res.status(200).json({ status_code: 200, success: true, data: updated })
-    } catch (error) {
-        return res.status(500).json({ status_code: 500, success: false, message: error.message })
+    if (!Order) {
+      return res.status(404).json({
+        status_code: 404,
+        success: false,
+        message: 'Order tidak ditemukan',
+      });
     }
-}
+
+    await updateStatusOrder(req.params.id, { order_status });
+
+    const updated = await getOrdersById(req.params.id);
+
+    const userEmail = updated?.user?.email || null;
+    const userName = updated?.user?.name || 'Pelanggan';
+    const userId = updated?.user?.id;
+
+    const message = `Status pesanan Anda dengan ID #${updated.order_id} telah diperbarui menjadi "${order_status}".`;
+
+    // Kirim email
+    if (userEmail) {
+      await sendEmail(
+        userEmail,
+        'Status Pesanan Diperbarui',
+        `Halo ${userName},\n\n${message}\n\nTerima kasih telah menggunakan layanan kami.`
+      );
+    }
+
+    // Simpan notifikasi
+    if (userId) {
+      await saveNotification(userId, 'Status Pesanan Diperbarui', message);
+    }
+
+    return res.status(200).json({
+      status_code: 200,
+      success: true,
+      message: `Order status berhasil diubah menjadi "${order_status}", notifikasi dan email dikirim.`,
+      data: updated,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status_code: 500,
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 const editStatusDeparture = async (req, res) => {
-    // const {
-    //     order_status
-    // } = req.body;
-    try {
-        const Order = await getOrdersById(req.params.id)
-        if (!Order) {
-            return res.status(404).json({ status_code: 404, success: false, message: 'Order not found' })
-        }
+  try {
+    const Order = await getOrdersById(req.params.id);
 
-        await updateStatusDeparture(req.params.id)
-
-        const updated = await getOrdersById(req.params.id);
-        return res.status(200).json({ status_code: 200, success: true, data: updated })
-    } catch (error) {
-        return res.status(500).json({ status_code: 500, success: false, message: error.message })
+    if (!Order) {
+      return res.status(404).json({
+        status_code: 404,
+        success: false,
+        message: 'Order tidak ditemukan',
+      });
     }
-}
+
+    await updateStatusDeparture(req.params.id);
+
+    const updated = await getOrdersById(req.params.id);
+
+    // Kirim email notifikasi ke user
+    const userEmail = updated?.user?.email || null;
+    const userName = updated?.user?.name || 'Pelanggan';
+    const userId = updated?.user?.id;
+    const departureStatus = updated?.departure_status;
+
+    const statusText = departureStatus ? 'telah diberangkatkan' : 'belum diberangkatkan';
+
+    if (userEmail) {
+      await sendEmail(
+        userEmail,
+        'Status Keberangkatan Pesanan',
+        `Halo ${userName},\n\nPesanan Anda dengan ID #${updated.order_id} saat ini ${statusText}.\n\nTerima kasih telah mempercayakan perjalanan Anda bersama kami.`
+      );
+    }
+
+    // Simpan notifikasi ke database
+    if (userId) {
+      await notificationService.saveNotification({
+        userId,
+        type: 'departure_status_update',
+        message: `Pesanan #${updated.order_id} saat ini ${statusText}.`
+      });
+    }
+
+    return res.status(200).json({
+      status_code: 200,
+      success: true,
+      message: `Status keberangkatan berhasil diperbarui dan email telah dikirim.`,
+      data: updated,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status_code: 500,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
 const getAllOrders = async (req, res) => {
     try {
         const Orders = await getOrders(req.query)

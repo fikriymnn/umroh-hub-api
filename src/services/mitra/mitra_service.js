@@ -7,8 +7,8 @@ const createMitra = async (data) => {
   try {
     const {
       name, email, password, phone_number, address,
-      compamy_name, website, nib, npwp, siup,
-      siuppiu, akta, image_url
+      company_name, website, nib, npwp, siup,
+      siuppiu, akta, image_url,description
     } = data;
 
       // Cek apakah email sudah digunakan

@@ -19,5 +19,5 @@ router.use('/post', require('./forum/post_route'));
 router.use('/comment', require('./forum/comment_route'));
 router.use('/reply', require('./forum/reply_route'));
 router.use('/react', require('./forum/reaction_route'));
-
+router.use('/schedule', require('./schedule/schedule'));
 module.exports = router;
