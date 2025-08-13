@@ -1,24 +1,21 @@
 // controllers/jadwalController.js
-const {  getscheduletoday } = require('../../services/schedule/schedule');
+const { getscheduletoday } = require('../../services/schedule/schedule');
 
-async function getScheduleTodayController(req, res) {
+async function scheduletoday(req, res) {
   try {
-    const { idPackage } = req.params;
-    const result = await getscheduletoday(idPackage);
-
+    const data = await getscheduletoday();
     res.status(200).json({
-      success: true,
       status_code: 200,
-      message: 'Jadwal hari ini berhasil diambil',
-      data: result
+      success: true,
+      data
     });
   } catch (error) {
     res.status(500).json({
-      success: false,
       status_code: 500,
+      success: false,
       message: error.message
     });
   }
 }
 
-module.exports = { getScheduleTodayController };
+module.exports = { scheduletoday };
