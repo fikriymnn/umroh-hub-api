@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
     id_user: DataTypes.INTEGER,
     subtotal: DataTypes.INTEGER,
     payment_status: DataTypes.ENUM('pending', 'paid', 'failed'),
-    departure_status: DataTypes.BOOLEAN,
+    departure_status: DataTypes.ENUM('process', 'departure', 'arrival'),
     order_status: DataTypes.ENUM('pending', 'confirmed', 'cancelled'),
     payment_method: DataTypes.STRING,
     bank: DataTypes.STRING,
@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
     transaction_proof_url: DataTypes.STRING,
     by_name_of: DataTypes.STRING,
     review_status: DataTypes.BOOLEAN,
+    note: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'order',

@@ -62,9 +62,11 @@ module.exports = (sequelize, DataTypes) => {
     view_package: DataTypes.INTEGER,
     rating: DataTypes.INTEGER,
     date_arrival: DataTypes.DATE,
-    // transportation: DataTypes.STRING,
+    actual_departure_date: DataTypes.DATE,
+    departure_status: DataTypes.ENUM('process', 'departure', 'arrival'),
+    konfirmation_status: DataTypes.BOOLEAN,
     airplane: DataTypes.STRING,
-    package_status: DataTypes.ENUM('active', 'draft', 'checked', 'rejected', 'history')
+    package_status: DataTypes.ENUM('active', 'draft', 'checked', 'rejected', 'history', 'departure')
   }, {
     sequelize,
     modelName: 'package_umroh',

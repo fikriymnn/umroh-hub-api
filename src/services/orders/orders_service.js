@@ -1,6 +1,8 @@
 // const { where } = require("sequelize");
 const models = require('../../models');
 const sequelize = require("../../config/db");
+const cron = require('node-cron');
+const { Op } = require('sequelize');
 // const client = require("../../../waasap/client")
 
 const createOrders = async (data) => {
@@ -63,6 +65,20 @@ const createOrders = async (data) => {
             }
 
         }
+        const totalJamaah = await models.jamaah.count({
+            where: { id_order: order.id },
+            transaction: t
+        });
+
+        const quotaUpdate = packageUmroh.quota - totalJamaah;
+
+        await models.package_umroh.update({
+            quota_update: quotaUpdate
+        }, {
+            where: { id: id_package },
+            transaction: t
+        });
+
         await t.commit();
     } catch (error) {
         if (!t.finished) await t.rollback();
@@ -100,12 +116,12 @@ const paymentOrder = async (order_id, data) => {
             payment_status: 'paid',
         }, { where: { order_id: order_id }, transaction: t })
 
-        const jamaah = await models.jamaah.count({ where: { id_order: order.id } })
-        const quota_update = packageUmroh.quota - jamaah;
+        // const jamaah = await models.jamaah.count({ where: { id_order: order.id } })
+        // const quota_update = packageUmroh.quota - jamaah;
 
-        await models.package_umroh.update({
-            quota_update: quota_update
-        }, { where: { id: order.id_package } })
+        // await models.package_umroh.update({
+        //     quota_update: quota_update
+        // }, { where: { id: order.id_package } })
 
         await t.commit();
         return order;
@@ -114,6 +130,51 @@ const paymentOrder = async (order_id, data) => {
         throw error;
     }
 }
+
+cron.schedule('* * * * *', async () => {
+    const batasWaktu = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    try {
+        const expiredOrders = await models.order.findAll({
+            where: {
+                payment_status: 'pending',
+                createdAt: { [Op.lte]: batasWaktu }
+            },
+            include: [
+                { model: models.jamaah, as: 'jamaah' },
+                { model: models.package_umroh, as: 'package_umroh' }
+            ]
+        });
+
+        let totalUpdated = 0;
+
+        for (const order of expiredOrders) {
+            const jumlahJamaah = order.jamaah.length;
+
+            await models.order.update(
+                { payment_status: 'failed' },
+                { where: { id: order.id } }
+            );
+
+            const paket = await models.package_umroh.findByPk(order.id_package);
+            if (paket) {
+                const newQuotaUpdate = paket.quota_update + jumlahJamaah;
+                await models.package_umroh.update(
+                    { quota_update: newQuotaUpdate },
+                    { where: { id: paket.id } }
+                );
+            }
+
+            totalUpdated++;
+        }
+
+        console.log(`Cronjob: ${totalUpdated} order expired di-set failed & quota dikembalikan.`);
+    } catch (error) {
+        console.error('Gagal memproses cronjob order:', error.message);
+    }
+});
+
+
 const editOrder = async (id, data) => {
     const {
         // id_user,
@@ -396,7 +457,8 @@ const getOrdersByIdMitra = async (id, query) => {
                         model: models.master_type_departure
                     },
                     {
-                        model: models.master_category_departure
+                        model: models.master_category_departure,
+                        where: query.category_name ? { category_name: query.category_name } : undefined
                     },
                     {
                         model: models.master_location_departure
@@ -430,6 +492,7 @@ const getOrdersByIdMitra = async (id, query) => {
         ]
     });
 };
+
 const getOrdersByIdUser = async (id, query) => {
     const filterFrom = {
         id_user: id
@@ -504,6 +567,29 @@ const deleteOrdersServices = async (id) => {
     await models.jamaah.destroy({ where: { id_order: id } })
     return await models.order.destroy({ where: { id } });
 };
+
+const rejectOrder = async (id, data) => {
+    const { note } = data;
+    const t = await models.sequelize.transaction();
+    try {
+        const ord = await models.order.findByPk(id);
+        if (!ord) throw new Error('Order not found');
+
+        await models.order.update({
+            note,
+            order_status: 'cancelled'
+        }, {
+            where: { id: id }, transaction: t
+        })
+        const order = await models.order.findByPk(id);
+        await t.commit();
+        return order;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+}
+
 module.exports = {
     createOrders,
     getOrders,
@@ -515,6 +601,7 @@ module.exports = {
     updateStatusOrder,
     getOrdersByIdMitra,
     updateStatusDeparture,
-    uploadCompleteDataJamaah
+    uploadCompleteDataJamaah,
+    rejectOrder
 }
 

@@ -35,7 +35,7 @@ module.exports = {
         });
       }
 
-      const token = generateToken({ id: admin.id, role: 'admin', username: admin.username });
+      const token = generateToken({ id: admin.id, role: 'admin', username: admin.name });
       res.cookie('token', token, { httpOnly: true, sameSite: "None", secure: true, path: "/" });
 
       return res.status(200).json({
@@ -48,7 +48,6 @@ module.exports = {
       return res.status(500).json({
         status_code: 500,
         success: false,
-        message: 'Terjadi kesalahan saat login admin',
         error: err.message
       });
     }
@@ -95,7 +94,7 @@ module.exports = {
         });
       }
 
-      const token = generateToken({ id: mitra.id, role: 'mitra', username: mitra.username });
+      const token = generateToken({ id: mitra.id, role: 'mitra', username: mitra.name });
       res.cookie('token', token, { httpOnly: true, sameSite: "None", secure: true, path: "/" });
 
       return res.status(200).json({
@@ -145,7 +144,7 @@ module.exports = {
         });
       }
 
-      const token = generateToken({ id: user.id, role: 'user', username: user.username });
+      const token = generateToken({ id: user.id, role: 'user', username: user.name });
       res.cookie('token', token, { httpOnly: true, sameSite: "None", secure: true, path: "/" });
 
       return res.status(200).json({

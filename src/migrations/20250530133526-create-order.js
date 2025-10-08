@@ -49,9 +49,12 @@ module.exports = {
         allowNull: false
       },
       departure_status: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('process', 'departure', 'arrival'),
+        defaultValue: 'process',
       },
-
+      note: {
+        type: Sequelize.STRING
+      },
       order_status: {
         type: Sequelize.ENUM('waiting', 'confirmed', 'cancelled'),
         allowNull: false

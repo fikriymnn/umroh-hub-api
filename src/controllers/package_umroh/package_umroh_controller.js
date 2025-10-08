@@ -1,4 +1,4 @@
-const { createPakcageUmroh, getPakcageUmroh, getPakcageUmrohById, editPakcageUmroh, deletePackageUmrohServices, nonActivePackageUmrohServices, updateStatusPackageUmroh, getPackageUmrohByMitra, rejectUmrohPackage, getPakcageUmrohByIdView } = require("../../services/package_umroh/package_umroh_services");
+const { createPakcageUmroh, getPakcageUmroh, getPakcageUmrohById, editPakcageUmroh, deletePackageUmrohServices, nonActivePackageUmrohServices, updateStatusPackageUmroh, getPackageUmrohByMitra, rejectUmrohPackage, getPakcageUmrohByIdView, updateStatusDeparture, konfirmationPackageUmroh, addActualDateDeparture } = require("../../services/package_umroh/package_umroh_services");
 const models = require('../../models');
 const addPackageUmroh = async (req, res) => {
     const {
@@ -285,6 +285,93 @@ const rejectPackageUmroh = async (req, res) => {
     }
 }
 
+const editStatusDeparture = async (req, res) => {
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+
+    const {
+        departure_status
+    } = req.body;
+    // console.log("departure_status:", departure_status);
+
+    // if (!departure_status) {
+    //     return res.status(400).json({
+    //         status_code: 400,
+    //         success: false,
+    //         message: 'departure_status is required'
+    //     });
+    // }
+
+    try {
+        const packageUmroh = await getPakcageUmrohById(req.params.id);
+        if (!packageUmroh) {
+            return res.status(404).json({
+                status_code: 404,
+                success: false,
+                message: 'Package Umroh not found'
+            });
+        }
+
+        await updateStatusDeparture(req.params.id, { departure_status });
+
+        const updated = await getPakcageUmrohById(req.params.id);
+        return res.status(200).json({
+            status_code: 200,
+            success: true,
+            data: updated
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status_code: 500,
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+const konfirmationStatusPackageUmroh = async (req, res) => {
+    try {
+        const package = await getPakcageUmrohById(req.params.id)
+        if (!package) {
+            res.status(404).json({ status_code: 404, success: false, message: 'Package Umroh not found' })
+        }
+        await konfirmationPackageUmroh(req.params.id)
+        res.status(200).json({ status_code: 200, success: true, data: package })
+    } catch (error) {
+        res.status(500).json({ status_code: 500, success: false, message: error.message })
+    }
+}
+
+const addActualDateDeparurePackageUmroh = async (req, res) => {
+    try {
+        const { actual_departure_date } = req.body;
+        const packageUmroh = await getPakcageUmrohById(req.params.id);
+        if (!packageUmroh) {
+            return res.status(404).json({
+                status_code: 404,
+                success: false,
+                message: 'Package Umroh not found'
+            });
+        }
+
+        await addActualDateDeparture(req.params.id, { actual_departure_date });
+
+        const updated = await getPakcageUmrohById(req.params.id);
+        return res.status(200).json({
+            status_code: 200,
+            success: true,
+            data: updated
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status_code: 500,
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
 module.exports = {
     addPackageUmroh,
     getAllPackageUmroh,
@@ -295,5 +382,8 @@ module.exports = {
     editStatusPackage,
     getAllPackageUmrohByMitra,
     rejectPackageUmroh,
-    getOnePackageUmrohWithView
+    getOnePackageUmrohWithView,
+    editStatusDeparture,
+    konfirmationStatusPackageUmroh,
+    addActualDateDeparurePackageUmroh
 };

@@ -12,12 +12,12 @@ module.exports = {
         return { success: false, message: 'Name, email, and password are required' };
       }
 
-  // Cek apakah email sudah digunakan
-    const existing = await models.User.findOne({ where: { email } });
-    if (existing) {
-      await t.rollback();
-      return { success: false, message: 'Email already in use' };
-    }
+      // Cek apakah email sudah digunakan
+      const existing = await models.User.findOne({ where: { email } });
+      if (existing) {
+        await t.rollback();
+        return { success: false, message: 'Email already in use' };
+      }
 
       const hashed = await hashPassword(password);
 
@@ -40,7 +40,8 @@ module.exports = {
     }
   },
 
-  async getAllUsers() {
+  async getAllUsers(query) {
+
     const users = await models.User.findAll();
     return { success: true, message: 'All users retrieved', data: users };
   },
@@ -67,22 +68,22 @@ module.exports = {
     }
   },
 
- async reactivateUser (id) {
-  const t = await sequelize.transaction();
-  try {
-    const user = await models.User.findByPk(id);
-    if (!user) return { success: false, message: 'User not found' };
+  async reactivateUser(id) {
+    const t = await sequelize.transaction();
+    try {
+      const user = await models.User.findByPk(id);
+      if (!user) return { success: false, message: 'User not found' };
 
-    if (user.is_active) return { success: false, message: 'User is already active' };
+      if (user.is_active) return { success: false, message: 'User is already active' };
 
-    await user.update({ is_active: true }, { transaction: t });
-    await t.commit();
-    return { success: true, message: 'User reactivated successfully', data: user };
-  } catch (error) {
-    await t.rollback();
-    throw error;
-  }
-},
+      await user.update({ is_active: true }, { transaction: t });
+      await t.commit();
+      return { success: true, message: 'User reactivated successfully', data: user };
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
+  },
 
 
   async deactivateUser(id) {

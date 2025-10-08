@@ -10,6 +10,8 @@ router.use("/", require('../routes/package_umroh/package_umroh_rotes'))
 router.use("/", require('../routes/orders/orders_routes'))
 router.use("/", require('../routes/review/review_routes'))
 router.use("/", require('../routes/data_management/mitra/mitra_data'))
+router.use("/", require('../routes/data_management/admin/admin_data'))
+router.use("/", require('../routes/jamaah/jamaah'))
 router.use('/users', require('./users/user_routes'));
 router.use('/mitras', require('./mitra/mitra_routes'));
 router.use('/admins', require('./admins/admin_routes'));

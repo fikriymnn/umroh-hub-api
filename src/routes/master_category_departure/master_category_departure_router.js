@@ -3,11 +3,12 @@ const { addCategoryDeparture, getAllCategoryDeparture, getOneCategoryDeparture, 
 const authenticate = require("../../middlewares/auth");
 const router = express.Router();
 
+// router.post('/addCategory', authenticate(['admin']), addCategoryDeparture)
 router.post('/addCategory', authenticate(['admin']), addCategoryDeparture)
 router.get('/getAllCategory', getAllCategoryDeparture)
-router.get('/getOneCategory/:id', getOneCategoryDeparture)
-router.put('/editCategory/:id', editCategoryDeparture)
-router.put('/nonActiveCategory/:id',  nonActiveCategoryDeparture)
-router.delete('/deleteCategory/:id', deleteCategoryDeparture)
+router.get('/getOneCategory/:id', authenticate(['admin']), getOneCategoryDeparture)
+router.put('/editCategory/:id', authenticate(['admin']), editCategoryDeparture)
+router.put('/nonActiveCategory/:id', authenticate(['admin']), nonActiveCategoryDeparture)
+router.delete('/deleteCategory/:id', authenticate(['admin']), deleteCategoryDeparture)
 
 module.exports = router;

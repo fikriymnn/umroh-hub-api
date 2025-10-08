@@ -1,4 +1,4 @@
-const { createOrders, getOrders, getOrdersById, editOrder, deleteOrdersServices, paymentOrder, getOrdersByIdUser, updateStatusOrder, getOrdersByIdMitra, uploadCompleteDataJamaah, updateStatusDeparture } = require("../../services/orders/orders_service");
+const { createOrders, getOrders, getOrdersById, editOrder, deleteOrdersServices, paymentOrder, getOrdersByIdUser, updateStatusOrder, getOrdersByIdMitra, uploadCompleteDataJamaah, updateStatusDeparture, rejectOrder } = require("../../services/orders/orders_service");
 
 const addOrders = async (req, res) => {
     const {
@@ -284,6 +284,25 @@ const upCompleteDataJamaah = async (req, res) => {
         res.status(500).json({ status_code: 500, success: false, message: error.message })
     }
 }
+
+const rejectOrderUser = async (req, res) => {
+    const {
+        note
+    } = req.body;
+    try {
+        const Orders = await getOrdersById(req.params.id, req.body)
+        if (!Orders) {
+            res.status(404).json({ status_code: 404, success: false, message: 'Orders not found' })
+        }
+
+        await rejectOrder(req.params.id, { note })
+
+        const updated = await getOrdersById(req.params.id);
+        return res.status(200).json({ status_code: 200, success: true, data: updated })
+    } catch (error) {
+        return res.status(500).json({ status_code: 500, success: false, message: error.message })
+    }
+}
 module.exports = {
     addOrders,
     getAllOrders,
@@ -295,6 +314,7 @@ module.exports = {
     editStatusOrder,
     getAllOrdersByMitra,
     editStatusDeparture,
-    upCompleteDataJamaah
+    upCompleteDataJamaah,
+    rejectOrderUser
     // nonActiveOrders
 };

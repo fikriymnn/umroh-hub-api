@@ -28,6 +28,9 @@ module.exports = {
       date_departure: {
         type: Sequelize.DATE
       },
+      actual_departure_date: {
+        type: Sequelize.DATE
+      },
       airline: {
         type: Sequelize.STRING
       },
@@ -59,7 +62,8 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       package_status: {
-        type: Sequelize.ENUM('active', 'draft', 'checked', 'rejected', 'history')
+        type: Sequelize.ENUM('active', 'draft', 'checked', 'rejected', 'history', 'departure'),
+        defaultValue: 'checked',
       },
       airplane: {
         type: Sequelize.STRING
@@ -70,9 +74,14 @@ module.exports = {
       rating: {
         type: Sequelize.INTEGER
       },
-      // transportation: {
-      //   type: Sequelize.STRING
-      // },
+      departure_status: {
+        type: Sequelize.ENUM('process', 'departure', 'arrival'),
+        defaultValue: 'process',
+      },
+      konfirmation_status: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

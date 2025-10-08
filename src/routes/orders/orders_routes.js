@@ -1,6 +1,6 @@
 const express = require('express');
 const authenticate = require('../../middlewares/auth');
-const { addOrders, getAllOrders, getOneOrders, editOrders, deleteOrders, paymentOrders, getAllOrdersByUser, editStatusOrder, getAllOrdersByMitra, editStatusDeparture, upCompleteDataJamaah } = require('../../controllers/orders/orders_controller');
+const { addOrders, getAllOrders, getOneOrders, editOrders, deleteOrders, paymentOrders, getAllOrdersByUser, editStatusOrder, getAllOrdersByMitra, editStatusDeparture, upCompleteDataJamaah, rejectOrderUser } = require('../../controllers/orders/orders_controller');
 // const uploadPackage = require('../../middlewares/uploadPackageUmroh');
 const router = express.Router();
 
@@ -15,6 +15,7 @@ router.put('/editOrderStatus/:id', authenticate(['admin']), editStatusOrder)
 router.put('/editDepartureStatus/:id', authenticate(['mitra']), editStatusDeparture)
 router.put('/completeData/:id', authenticate(['mitra']), upCompleteDataJamaah)
 router.delete('/deleteOrder/:id', authenticate(['mitra', 'admin']), deleteOrders)
+router.put('/rejectOrder/:id', authenticate(['admin']), rejectOrderUser)
 // router.put('/nonActiveOrder/:id', authenticate(['mitra', 'admin']), nonActivePackageUmroh)
 
 module.exports = router;

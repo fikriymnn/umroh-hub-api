@@ -309,6 +309,10 @@ const getPakcageUmroh = async (query) => {
         filterFrom.duration = query.duration;
     }
 
+    if (query.package_status) {
+        filterFrom.package_status = query.package_status;
+    }
+
     if (query.date_departure) {
         const start = new Date(query.date_departure);
         start.setUTCHours(0, 0, 0, 0); // fix jam ke 00:00 UTC
@@ -336,6 +340,7 @@ const getPakcageUmroh = async (query) => {
         where: filterFrom,
         limit,
         offset,
+        order: [['createdAt', 'DESC']],
         include: [
             {
                 model: models.master_type_departure
@@ -623,6 +628,153 @@ const rejectUmrohPackage = async (id, data) => {
         throw error;
     }
 }
+
+const updateStatusDeparture = async (id, data) => {
+    const { departure_status } = data;
+    // if (!departure_status) {
+    //     throw new Error('deprture not found')
+    // }
+    const today = new Date()
+    const t = await sequelize.transaction();
+    try {
+        const PackageUmroh = await models.package_umroh.findByPk(id);
+        if (!PackageUmroh) {
+            throw new Error('Package Umroh not found')
+        }
+        console.log(departure_status);
+        console.log("tanggal", today);
+
+
+        if (departure_status === 'departure') {
+            await models.package_umroh.update({
+                departure_status,
+                package_status: 'departure'
+            }, {
+                where: { id: id }, transaction: t
+            })
+
+            await models.order.update({
+                departure_status
+            }, {
+                where: { id_package: id }, transaction: t
+            })
+        }
+
+        if (departure_status === 'arrival') {
+            await models.package_umroh.update({
+                departure_status,
+                package_status: 'history'
+            }, {
+                where: { id: id }, transaction: t
+            })
+
+            await models.order.update({
+                departure_status
+            }, {
+                where: { id_package: id }, transaction: t
+            })
+
+        }
+
+        await t.commit();
+        return PackageUmroh;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+}
+
+const konfirmationPackageUmroh = async (id) => {
+    await models.package_umroh.update({ konfirmation_status: true, package_status: 'Active' }, { where: { id } });
+    return await models.package_umroh.findOne({ where: { id } });
+};
+
+
+
+const addActualDateDeparture = async (id, data) => {
+    const { actual_departure_date } = data;
+    const t = await models.sequelize.transaction();
+    try {
+        const pkg = await models.package_umroh.findByPk(id);
+        if (!pkg) throw new Error('Package Umroh not found');
+
+        await models.package_umroh.update({
+            actual_departure_date,
+        }, {
+            where: { id: id }, transaction: t
+        })
+        const package = await models.package_umroh.findByPk(id);
+        await t.commit();
+        return package;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+}
+
+
+// const getStatisticsPackageUmroh = async (year, month) => {
+//     if (!year || isNaN(year)) {
+//         throw new Error('Tahun harus valid.');
+//     }
+//     if (!month || isNaN(month) || month < 1 || month > 12) {
+//         throw new Error('Bulan harus valid (1–12).');
+//     }
+
+//     try {
+//         const startDate = new Date(year, month - 1, 1);
+//         const endDate = new Date(year, month, 0, 23, 59, 59);
+
+//         const pkgKonfirmationTrue = await models.package_umroh.count({
+//             where: {
+//                 createdAt: { [Op.between]: [startDate, endDate] },
+//                 id_mitra,
+//                 konfirmation_status: true,
+//                 // order_status: 'confirmed'
+//             },
+//             raw: true,
+//         });
+
+//         const pkgRejected = await models.package_umroh.count({
+//             where: {
+//                 createdAt: { [Op.between]: [startDate, endDate] },
+//                 id_mitra,
+//                 konfirmation_status: false,
+//                 package_status: 'rejected'
+//             },
+//             raw: true,
+//         });
+
+//         const total_package = pkgKonfirmationTrue + pkgRejected;
+
+//         const detailPackage = await models.package_umroh.findAll({
+//             where: {
+//                 createdAt: { [Op.between]: [startDate, endDate] },
+//                 id_mitra,
+//                 // konfirmation_status: false,
+//                 package_status: 'rejected'
+//             },
+//             raw: true,
+//         });
+
+//         return {
+//             year,
+//             month,
+//             totalTransactions: transaksi[0]?.totalTransactions || 0,
+//             totalSubTotal,
+//             totalJamaah,
+//             nettoRevenue,
+//             totalPackage,
+//             totalPackagePlus,
+//             totalPackageRegular,
+//         };
+
+//     } catch (error) {
+//         console.error('Error fetching statistics:', error);
+//         throw new Error('Gagal mengambil data statistik bulanan');
+//     }
+// };
+
 module.exports = {
     createPakcageUmroh,
     editPakcageUmroh,
@@ -633,6 +785,9 @@ module.exports = {
     updateStatusPackageUmroh,
     getPackageUmrohByMitra,
     rejectUmrohPackage,
-    getPakcageUmrohByIdView
+    getPakcageUmrohByIdView,
+    updateStatusDeparture,
+    konfirmationPackageUmroh,
+    addActualDateDeparture
 }
 

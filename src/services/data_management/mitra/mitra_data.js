@@ -35,7 +35,7 @@ const dataDashboardMitra = async (id_mitra) => {
     const thisMonth = now.getMonth() + 1;
     const thisYear = now.getFullYear();
 
-    const totalRevanue = await models.order.sum('subtotal', {
+    const totalRevenue = await models.order.sum('subtotal', {
         where: {
             id_mitra,
             payment_status: 'paid',
@@ -47,6 +47,8 @@ const dataDashboardMitra = async (id_mitra) => {
         }
     });
 
+    const nettoRevenue = totalRevenue - (allJamaah * 1000000);
+
     return {
         allPackage,
         packageActive,
@@ -54,7 +56,7 @@ const dataDashboardMitra = async (id_mitra) => {
         packagePlus,
         packageRegular,
         allJamaah,
-        totalRevenueThisMonth: totalRevanue || 0,
+        totalRevenueThisMonth: nettoRevenue || 0,
         thisMonth
     };
     //     } catch (error) {
@@ -80,7 +82,7 @@ const getYearlyStatistics = async (id_mitra, year) => {
                     [Op.between]: [yearStart, yearEnd],
                 },
                 id_mitra,
-                package_status: 'active'
+                // package_status: 'active'
             },
             include: [{ model: models.master_category_departure, where: { category_name: 'Plus' } }],
             raw: true,
@@ -92,11 +94,16 @@ const getYearlyStatistics = async (id_mitra, year) => {
                     [Op.between]: [yearStart, yearEnd],
                 },
                 id_mitra,
-                package_status: 'active'
+                // package_status: 'active'
             },
             include: [{ model: models.master_category_departure, where: { category_name: 'Regular' } }],
             raw: true,
         });
+
+        const totalPackagesYears = packagePlusYears + packageRegularYears;
+
+        const percentagePlus = totalPackagesYears > 0 ? (packagePlusYears / totalPackagesYears) * 100 : 0;
+        const percentageRegular = totalPackagesYears > 0 ? (packageRegularYears / totalPackagesYears) * 100 : 0;
 
         for (let month = 1; month <= 12; month++) {
             const startDate = new Date(year, month - 1, 1);
@@ -117,6 +124,21 @@ const getYearlyStatistics = async (id_mitra, year) => {
                 raw: true,
             });
 
+            const totalJamaah = await models.jamaah.count({
+                include: [{
+                    model: models.order,
+                    as: 'order',
+                    where: {
+                        id_mitra,
+                        order_status: 'confirmed',
+                        createdAt: { [Op.between]: [startDate, endDate] }
+                    }
+                }]
+            });
+
+            const totalSubTotal = transaksi[0]?.totalSubTotal || 0;
+            const nettoRevenue = totalSubTotal - (totalJamaah * 1000000);
+
             const totalPackage = await models.package_umroh.count({
                 where: { id_mitra, package_status: 'active' }
             });
@@ -134,10 +156,10 @@ const getYearlyStatistics = async (id_mitra, year) => {
             statisticsByMonth.push({
                 month,
                 totalTransactions: transaksi[0]?.totalTransactions || 0,
-                totalSubTotal: transaksi[0]?.totalSubTotal || 0,
+                totalSubTotal: nettoRevenue || 0,
                 totalPackage,
                 totalPackagePlus,
-                totalPackageRegular
+                totalPackageRegular,
             });
         }
 
@@ -146,6 +168,8 @@ const getYearlyStatistics = async (id_mitra, year) => {
             packagePlusYears,
             packageRegularYears,
             monthlyStatistics: statisticsByMonth,
+            percentagePlus: parseFloat(percentagePlus.toFixed(2)),
+            percentageRegular: parseFloat(percentageRegular.toFixed(2))
         };
 
     } catch (error) {
